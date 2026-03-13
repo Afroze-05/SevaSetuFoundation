@@ -15,7 +15,7 @@ return(
 
 <p>
 SevaSetu works to provide food, education,
-and healthcare support to communities in need.!!
+and healthcare support to communities in need.
 </p>
 
 <div className="row mt-4">
