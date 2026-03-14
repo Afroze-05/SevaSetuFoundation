@@ -1,87 +1,205 @@
 import { Link } from "react-router-dom";
 import { Heart, Users, Award, HandHeart } from "lucide-react";
 import "./Welcome.css";
+import banner from "../assets/banner1.jpg";
+import logo from "../assets/logo.jpg";
 
 function Welcome() {
   return (
     <div className="welcome-container">
-      {/* Background Image Section */}
-      <div className="welcome-hero">
+
+      {/* HEADER */}
+      <header className="main-header">
+        <div className="header-left">
+          <img src={logo} alt="SevaSetu Logo" className="header-logo-img"/>
+          <h2>SevaSetu Foundation</h2>
+        </div>
+
+        <div className="header-right">
+          <p>Bridging Hearts. Changing Lives.</p>
+        </div>
+      </header>
+
+
+      {/* HERO SECTION */}
+      <div
+        className="welcome-hero"
+        style={{ backgroundImage: `url(${banner})` }}
+      >
         <div className="hero-overlay"></div>
+
         <div className="hero-content">
-          <div className="logo-section">
-            <HandHeart className="logo-icon" />
-            <h1 className="ngo-name">SevaSetu Foundation</h1>
-            <p className="tagline">Connecting Kind Hearts with Those in Need</p>
-          </div>
+          <h1>Welcome to SevaSetu</h1>
+          <p>Together we can make a difference</p>
         </div>
       </div>
 
-      {/* Login Card Section */}
+
+      {/* HOW SEVASETU WORKS */}
+      <div className="how-section">
+
+        <h2 className="section-title">How SevaSetu Works</h2>
+
+        <p className="how-subtitle">
+          SevaSetu connects donors and NGOs through a simple process to ensure
+          help reaches the people who need it the most.
+        </p>
+
+        <div className="how-steps">
+
+          <div className="step-card">
+            <div className="step-number">1</div>
+            <Users className="step-icon" />
+            <h3>Donors Contribute</h3>
+            <p>
+              Generous donors contribute food, clothes, books, or funds
+              through the SevaSetu platform to support social causes.
+            </p>
+          </div>
+
+          <div className="step-card">
+            <div className="step-number">2</div>
+            <Award className="step-icon" />
+            <h3>NGOs Organize Campaigns</h3>
+            <p>
+              NGOs create campaigns and manage requests for communities
+              in need, ensuring donations are used effectively.
+            </p>
+          </div>
+
+          <div className="step-card">
+            <div className="step-number">3</div>
+            <Heart className="step-icon" />
+            <h3>Help Reaches People</h3>
+            <p>
+              Donations are delivered to people who truly need support,
+              creating meaningful and lasting social impact.
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+
+      {/* LOGIN SECTION */}
       <div className="login-section">
         <div className="login-card">
+
           <h2>Welcome Back</h2>
           <p className="login-subtitle">Choose your login option</p>
-          
+
           <div className="login-options">
+
             <Link to="/donor-login" className="login-option-card">
               <Users className="option-icon" />
               <h3>Login as Donor</h3>
               <p>Contribute items or money</p>
             </Link>
-            
+
             <Link to="/admin-login" className="login-option-card admin">
               <Award className="option-icon" />
               <h3>Login as NGO Admin</h3>
               <p>Manage campaigns & requests</p>
             </Link>
+
           </div>
 
           <div className="register-link">
-            <p>New here? <Link to="/donor-register">Register as Donor</Link></p>
+            <p>
+              New here? <Link to="/donor-register">Register as Donor</Link>
+            </p>
           </div>
+
         </div>
       </div>
 
-      {/* Impact Statistics */}
+
+      {/* IMPACT SECTION */}
       <div className="impact-section">
+
         <h2 className="section-title">Our Impact</h2>
+
+        <p className="impact-text">
+          Over the years, SevaSetu Foundation has connected thousands of
+          generous donors with communities in need. Every contribution,
+          whether big or small, helps bring hope and resources to those
+          who need it the most.
+        </p>
+
         <div className="stats-grid">
+
           <div className="stat-card">
             <div className="stat-icon">🍽️</div>
             <h3>10,000+</h3>
             <p>Meals Donated</p>
           </div>
+
           <div className="stat-card">
             <div className="stat-icon">👥</div>
             <h3>2,000+</h3>
             <p>Volunteers</p>
           </div>
+
           <div className="stat-card">
             <div className="stat-icon">📦</div>
             <h3>500+</h3>
             <p>Campaigns Completed</p>
           </div>
+
           <div className="stat-card">
             <div className="stat-icon">❤️</div>
             <h3>50,000+</h3>
             <p>Lives Touched</p>
           </div>
+
         </div>
       </div>
 
-      {/* Mission Statement */}
+
+      {/* MISSION SECTION */}
       <div className="mission-section">
+
         <div className="mission-content">
-          <Heart className="mission-icon" />
+
+          <HandHeart className="mission-icon" />
+
           <h2>Our Mission</h2>
+
           <p>
-            SevaSetu Foundation is dedicated to bridging the gap between those who want to help 
-            and those who need help. We facilitate donations of food, clothing, education materials, 
-            and financial support to communities in need, ensuring every contribution makes a real difference.
+            SevaSetu Foundation works to bridge the gap between people
+            who want to help and communities that need support. Through
+            food drives, clothing donations, educational support, and
+            financial aid, every act of kindness reaches the right hands.
           </p>
+
+          <p className="mission-extra">
+            Our platform enables donors and NGOs to collaborate,
+            organize campaigns, and create real social impact together.
+          </p>
+
         </div>
       </div>
+
+
+      {/* FOOTER */}
+      <footer className="footer">
+
+        <div className="footer-content">
+
+          <div className="footer-left">
+            <h3>SevaSetu Foundation</h3>
+            <p>Connecting Kind Hearts with Those in Need.</p>
+          </div>
+
+          <div className="footer-right">
+            <p>© 2026 SevaSetu Foundation</p>
+            <p>All Rights Reserved</p>
+          </div>
+
+        </div>
+
+      </footer>
+
     </div>
   );
 }
