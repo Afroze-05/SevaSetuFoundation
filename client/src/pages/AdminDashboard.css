@@ -1,0 +1,264 @@
+.admin-layout {
+    display: flex;
+    min-height: 100vh;
+    background: var(--background-light);
+  }
+  
+  /* Sidebar */
+  .admin-sidebar {
+    width: 240px;
+    background: #111827;
+    color: #f9fafb;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    margin-bottom: 24px;
+  }
+  
+  .sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+  }
+  
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #e5e7eb;
+    cursor: pointer;
+    text-align: left;
+    font-size: 0.9rem;
+    transition: background 0.2s ease, color 0.2s ease;
+  }
+  
+  .sidebar-link:hover {
+    background: #1f2937;
+  }
+  
+  .sidebar-link.active {
+    background: #2563eb;
+    color: #fff;
+  }
+  
+  .sidebar-link.logout-link {
+    margin-top: auto;
+    background: #ef4444;
+    color: #fff;
+  }
+  
+  /* Main content */
+  .admin-main {
+    flex: 1;
+    padding: 24px 20px;
+  }
+  
+  .admin-section h1 {
+    font-size: 1.7rem;
+    margin-bottom: 4px;
+  }
+  
+  .section-subtitle {
+    font-size: 0.95rem;
+    color: var(--text-light);
+    margin-bottom: 18px;
+  }
+  
+  /* Dashboard cards */
+  .admin-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+  }
+  
+  .stat-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 18px 16px;
+    box-shadow: var(--shadow);
+  }
+  
+  .stat-card h3 {
+    font-size: 0.9rem;
+    color: var(--text-light);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+  
+  .stat-number {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--primary-green);
+  }
+  
+  /* Requests & campaigns shared */
+  .cards-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  
+  /* Donation requests */
+  .request-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px 14px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .request-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    border-bottom: 1px solid var(--background-light);
+    padding-bottom: 8px;
+  }
+  
+  .request-header h3 {
+    font-size: 1rem;
+    margin: 0 0 2px;
+  }
+  
+  .muted {
+    font-size: 0.85rem;
+    color: var(--text-light);
+  }
+  
+  .request-body p {
+    font-size: 0.9rem;
+    margin: 2px 0;
+  }
+  
+  .request-actions {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  
+  /* Status chips */
+  .status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  
+  .status-chip.pending {
+    background: #fffbeb;
+    color: #f59e0b;
+  }
+  
+  .status-chip.accepted {
+    background: #ecfdf3;
+    color: #16a34a;
+  }
+  
+  .status-chip.rejected {
+    background: #fef2f2;
+    color: #ef4444;
+  }
+  
+  /* Small buttons */
+  .btn-small {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: none;
+    background: var(--background-light);
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+  
+  .btn-small.accept {
+    background: #16a34a;
+    color: #fff;
+  }
+  
+  .btn-small.reject,
+  .btn-small.danger {
+    background: #ef4444;
+    color: #fff;
+  }
+  
+  /* Campaign management */
+  .section-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  
+  .campaign-card-admin {
+    background: #fff;
+    border-radius: 12px;
+    padding: 16px 14px;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .campaign-card-admin h3 {
+    margin: 0;
+    font-size: 1rem;
+  }
+  
+  .campaign-desc {
+    font-size: 0.9rem;
+    color: var(--text-light);
+  }
+  
+  .campaign-actions-row {
+    margin-top: 6px;
+    display: flex;
+    gap: 8px;
+  }
+  
+  /* Reuse modal styles from DonationModal for campaign modal,
+     no extra CSS needed because AdminDashboard uses .donation-modal-* classes */
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .admin-layout {
+      flex-direction: column;
+    }
+  
+    .admin-sidebar {
+      width: 100%;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+    }
+  
+    .sidebar-menu {
+      flex-direction: row;
+    }
+  
+    .admin-main {
+      padding: 16px 12px;
+    }
+  }
