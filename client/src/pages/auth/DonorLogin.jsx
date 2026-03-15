@@ -2,26 +2,49 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, ArrowLeft, HandHeart } from "lucide-react";
 import "../../styles/auth.css";
+import api from "../../services/api";
 
 function DonorLogin() {
   const [formData, setFormData] = useState({
     email: "",
-    password: ""
+    password: "",
   });
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle login logic here
-    console.log("Login:", formData);
-    navigate("/home");
+    setLoading(true);
+    try {
+      const response = await api.post("/api/donors/login", formData);
+
+      if (response.data?.success) {
+        // Store JWT token and donor info in localStorage
+        localStorage.setItem("donorToken", response.data.token);
+        localStorage.setItem("donor", JSON.stringify(response.data.data));
+        alert("Login successful!");
+        navigate("/home");
+      } else {
+        alert(response.data?.message || "Login failed");
+      }
+    } catch (error) {
+      const message = error.response?.data?.message;
+
+      if (message === "Registration not done. Please register first.") {
+        alert(message);
+      } else {
+        alert(message || "Error while logging in");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -81,8 +104,8 @@ function DonorLogin() {
             <Link to="#" className="forgot-password">Forgot Password?</Link>
           </div>
 
-          <button type="submit" className="auth-submit-btn">
-            Login
+          <button type="submit" className="auth-submit-btn" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
           </button>
 
           <p className="auth-footer">

@@ -1,0 +1,167 @@
+.volunteer-requests-page {
+  min-height: 100vh;
+  background: var(--background-light);
+}
+
+.volunteer-requests-header {
+  text-align: center;
+  padding: 60px 20px 40px;
+  background: linear-gradient(135deg, var(--primary-green), var(--secondary-blue));
+  color: var(--white);
+}
+
+.page-title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.page-subtitle {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+.volunteer-requests-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+.volunteer-requests-list {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.volunteer-request-card {
+  background: var(--white);
+  border-radius: 15px;
+  padding: 30px;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+}
+
+.volunteer-request-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+}
+
+.request-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 25px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--background-light);
+}
+
+.request-title-section h3 {
+  color: var(--text-dark);
+  font-size: 1.5rem;
+  margin-bottom: 5px;
+}
+
+.request-email {
+  color: var(--text-light);
+  font-size: 0.95rem;
+}
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.status-badge .status-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.status-badge .status-icon.accepted {
+  color: #4caf50;
+}
+
+.status-badge .status-icon.rejected {
+  color: #f44336;
+}
+
+.status-badge .status-icon.pending {
+  color: #ff9800;
+}
+
+.status-text {
+  text-transform: capitalize;
+}
+
+.status-text.pending {
+  color: #ff9800;
+}
+
+.status-text.accepted {
+  color: #4caf50;
+}
+
+.status-text.rejected {
+  color: #f44336;
+}
+
+.request-details {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.detail-item {
+  color: var(--text-dark);
+  line-height: 1.6;
+}
+
+.detail-item strong {
+  color: var(--primary-green);
+  margin-right: 8px;
+}
+
+.motivation-text {
+  margin-top: 8px;
+  padding: 12px;
+  background: var(--background-light);
+  border-radius: 8px;
+  color: var(--text-dark);
+  line-height: 1.6;
+}
+
+.no-requests {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--text-light);
+}
+
+.no-requests-icon {
+  margin-bottom: 20px;
+  color: var(--primary-green);
+  opacity: 0.5;
+}
+
+.no-requests p {
+  font-size: 1.2rem;
+}
+
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 2rem;
+  }
+
+  .request-header {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .volunteer-request-card {
+    padding: 20px;
+  }
+}
+

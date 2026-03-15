@@ -1,20 +1,46 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { User, Mail, Heart, Bell, Edit, LogOut, Camera } from "lucide-react";
+import { User, Mail, Heart, Bell, Edit, LogOut, Camera, Phone, MapPin } from "lucide-react";
 import "./Profile.css";
 
 function Profile() {
+  const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "+91 9876543210",
-    address: "123 Main Street, City, State",
-    totalDonations: 25,
-    notifications: 8
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    totalDonations: 0,
+    notifications: 0
   });
+
+  // Load donor data from localStorage
+  useEffect(() => {
+    const loggedInDonor = JSON.parse(localStorage.getItem("loggedInDonor") || "{}");
+    const donorDonations = JSON.parse(localStorage.getItem("donorDonations") || "[]");
+    
+    if (loggedInDonor && loggedInDonor.email) {
+      // Count donations for this donor
+      const donorDonationCount = donorDonations.filter(
+        (donation) => donation.donorEmail === loggedInDonor.email
+      ).length;
+      
+      setProfileData({
+        name: loggedInDonor.name || "",
+        email: loggedInDonor.email || "",
+        phone: loggedInDonor.phone || "",
+        address: loggedInDonor.address || "",
+        totalDonations: donorDonationCount,
+        notifications: 0 // Can be calculated from pending donations
+      });
+    } else {
+      // Redirect to login if not logged in
+      navigate("/donor-login");
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     setProfileData({
@@ -24,8 +50,41 @@ function Profile() {
   };
 
   const handleSave = () => {
+    // Save updated profile to localStorage
+    const updatedDonor = {
+      name: profileData.name,
+      email: profileData.email,
+      phone: profileData.phone,
+      address: profileData.address
+    };
+    localStorage.setItem("loggedInDonor", JSON.stringify(updatedDonor));
     setIsEditing(false);
-    // Here you would save to backend
+    alert("Profile updated successfully!");
+  };
+
+  const handleCancel = () => {
+    // Reload original data
+    const loggedInDonor = JSON.parse(localStorage.getItem("loggedInDonor") || "{}");
+    const donorDonations = JSON.parse(localStorage.getItem("donorDonations") || "[]");
+    const donorDonationCount = donorDonations.filter(
+      (donation) => donation.donorEmail === loggedInDonor.email
+    ).length;
+    
+    setProfileData({
+      name: loggedInDonor.name || "",
+      email: loggedInDonor.email || "",
+      phone: loggedInDonor.phone || "",
+      address: loggedInDonor.address || "",
+      totalDonations: donorDonationCount,
+      notifications: 0
+    });
+    setIsEditing(false);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("loggedInDonor");
+    localStorage.removeItem("donorToken");
+    navigate("/");
   };
 
   return (
@@ -76,7 +135,7 @@ function Profile() {
                 </button>
               ) : (
                 <div className="edit-actions">
-                  <button onClick={() => setIsEditing(false)} className="cancel-btn">
+                  <button onClick={handleCancel} className="cancel-btn">
                     Cancel
                   </button>
                   <button onClick={handleSave} className="save-btn">
@@ -125,7 +184,7 @@ function Profile() {
 
               <div className="form-group">
                 <label>
-                  <span className="label-icon">📞</span>
+                  <Phone className="label-icon" />
                   Phone Number
                 </label>
                 {isEditing ? (
@@ -137,13 +196,13 @@ function Profile() {
                     className="form-input"
                   />
                 ) : (
-                  <div className="form-value">{profileData.phone}</div>
+                  <div className="form-value">{profileData.phone || "Not provided"}</div>
                 )}
               </div>
 
               <div className="form-group">
                 <label>
-                  <span className="label-icon">📍</span>
+                  <MapPin className="label-icon" />
                   Address
                 </label>
                 {isEditing ? (
@@ -155,7 +214,7 @@ function Profile() {
                     rows="3"
                   />
                 ) : (
-                  <div className="form-value">{profileData.address}</div>
+                  <div className="form-value">{profileData.address || "Not provided"}</div>
                 )}
               </div>
             </div>
@@ -168,10 +227,10 @@ function Profile() {
             <Link to="/campaigns" className="action-btn secondary">
               Browse Campaigns
             </Link>
-            <Link to="/" className="action-btn danger">
+            <button onClick={handleLogout} className="action-btn danger">
               <LogOut className="btn-icon" />
               Logout
-            </Link>
+            </button>
           </div>
         </div>
       </div>

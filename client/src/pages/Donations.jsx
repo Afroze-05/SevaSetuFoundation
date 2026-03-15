@@ -1,64 +1,52 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { CheckCircle, XCircle, Clock, Truck, Package } from "lucide-react";
+import { CheckCircle, XCircle, Clock, Package } from "lucide-react";
 import "./Donations.css";
 
 function Donations() {
+  const navigate = useNavigate();
   const [filterStatus, setFilterStatus] = useState("all");
+  const [donations, setDonations] = useState([]);
 
-  const donations = [
-    {
-      id: 1,
-      campaignName: "Food Donation Drive",
-      donationType: "Food",
-      itemName: "Rice & Pulses",
-      quantity: "50 kg",
-      date: "2024-01-15",
-      status: "Accepted",
-      pickupStatus: "Completed"
-    },
-    {
-      id: 2,
-      campaignName: "Stationary Donation Campaign",
-      donationType: "Education",
-      itemName: "Books & Notebooks",
-      quantity: "100 items",
-      date: "2024-01-20",
-      status: "Pending",
-      pickupStatus: "Scheduled"
-    },
-    {
-      id: 3,
-      campaignName: "Clothes Donation Drive",
-      donationType: "Clothing",
-      itemName: "Winter Clothes",
-      quantity: "30 pieces",
-      date: "2024-01-25",
-      status: "Accepted",
-      pickupStatus: "In Transit"
-    },
-    {
-      id: 4,
-      campaignName: "Financial Support Fund",
-      donationType: "Financial",
-      itemName: "Monetary Donation",
-      quantity: "₹5,000",
-      date: "2024-02-01",
-      status: "Accepted",
-      pickupStatus: "N/A"
-    },
-    {
-      id: 5,
-      campaignName: "Toiletries Collection",
-      donationType: "Hygiene",
-      itemName: "Soap & Sanitary Items",
-      quantity: "25 packs",
-      date: "2024-02-05",
-      status: "Rejected",
-      pickupStatus: "N/A"
+  useEffect(() => {
+    // Check if donor is logged in
+    const loggedInDonor = JSON.parse(localStorage.getItem("loggedInDonor") || "{}");
+    if (!loggedInDonor || !loggedInDonor.email) {
+      navigate("/donor-login");
+      return;
     }
-  ];
+
+    // Load donations for this donor
+    const allDonations = JSON.parse(localStorage.getItem("donorDonations") || "[]");
+    const donorDonations = allDonations.filter(
+      (donation) => donation.donorEmail === loggedInDonor.email
+    );
+    setDonations(donorDonations);
+  }, [navigate]);
+
+  // Listen for storage changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const loggedInDonor = JSON.parse(localStorage.getItem("loggedInDonor") || "{}");
+      if (loggedInDonor && loggedInDonor.email) {
+        const allDonations = JSON.parse(localStorage.getItem("donorDonations") || "[]");
+        const donorDonations = allDonations.filter(
+          (donation) => donation.donorEmail === loggedInDonor.email
+        );
+        setDonations(donorDonations);
+      }
+    };
+    
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("donationsUpdated", handleStorageChange);
+    
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("donationsUpdated", handleStorageChange);
+    };
+  }, []);
 
   const getStatusIcon = (status) => {
     switch (status) {
@@ -73,17 +61,6 @@ function Donations() {
     }
   };
 
-  const getPickupIcon = (pickupStatus) => {
-    if (pickupStatus === "Completed") {
-      return <CheckCircle className="pickup-icon completed" />;
-    } else if (pickupStatus === "In Transit") {
-      return <Truck className="pickup-icon in-transit" />;
-    } else if (pickupStatus === "Scheduled") {
-      return <Clock className="pickup-icon scheduled" />;
-    } else {
-      return <Package className="pickup-icon na" />;
-    }
-  };
 
   const filteredDonations = filterStatus === "all" 
     ? donations 
@@ -119,19 +96,18 @@ function Donations() {
               <div className="table-cell">Donation Details</div>
               <div className="table-cell">Date</div>
               <div className="table-cell">Status</div>
-              <div className="table-cell">Pickup Status</div>
             </div>
             
             {filteredDonations.map(donation => (
               <div key={donation.id} className="table-row">
                 <div className="table-cell">
-                  <strong>{donation.campaignName}</strong>
-                  <span className="donation-type">{donation.donationType}</span>
+                  <strong>{donation.campaignTitle}</strong>
+                  <span className="donation-type">{donation.campaignType}</span>
                 </div>
                 <div className="table-cell">
                   <div className="donation-details">
                     <span className="item-name">{donation.itemName}</span>
-                    <span className="item-quantity">{donation.quantity}</span>
+                    <span className="item-quantity">{donation.quantity || donation.amount}</span>
                   </div>
                 </div>
                 <div className="table-cell">
@@ -142,14 +118,6 @@ function Donations() {
                     {getStatusIcon(donation.status)}
                     <span className={`status-text ${donation.status.toLowerCase()}`}>
                       {donation.status}
-                    </span>
-                  </div>
-                </div>
-                <div className="table-cell">
-                  <div className="pickup-badge">
-                    {getPickupIcon(donation.pickupStatus)}
-                    <span className={`pickup-text ${donation.pickupStatus.toLowerCase().replace(" ", "-")}`}>
-                      {donation.pickupStatus}
                     </span>
                   </div>
                 </div>

@@ -1,20 +1,32 @@
 import { useEffect, useState } from "react";
 import "./DonationModal.css";
 
-function DonationModal({ isOpen, onClose, campaignType }) {
+function DonationModal({ isOpen, onClose, campaign }) {
   const [formData, setFormData] = useState({
     itemName: "",
-    donationType: "",
     quantity: "",
     amount: "",
-    expiryDate: "",
     pickupLocation: "",
-    pickupDate: "",
-    notes: "",
+    phone: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [donorInfo, setDonorInfo] = useState(null);
 
   // Lock scroll when modal is open
+  // Load donor info from localStorage
+  useEffect(() => {
+    const loggedInDonor = JSON.parse(localStorage.getItem("loggedInDonor") || "{}");
+    setDonorInfo(loggedInDonor);
+    
+    if (loggedInDonor && isOpen) {
+      setFormData((prev) => ({
+        ...prev,
+        phone: loggedInDonor.phone || "",
+        pickupLocation: loggedInDonor.address || "",
+      }));
+    }
+  }, [isOpen]);
+
   useEffect(() => {
     if (isOpen) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "auto";
@@ -24,12 +36,15 @@ function DonationModal({ isOpen, onClose, campaignType }) {
   useEffect(() => {
     if (isOpen) {
       setSubmitted(false);
-      setFormData((prev) => ({
-        ...prev,
-        donationType: campaignType || "",
-      }));
+      setFormData({
+        itemName: "",
+        quantity: "",
+        amount: "",
+        pickupLocation: donorInfo?.address || "",
+        phone: donorInfo?.phone || "",
+      });
     }
-  }, [isOpen, campaignType]);
+  }, [isOpen, donorInfo]);
 
   if (!isOpen) return null;
 
@@ -46,8 +61,51 @@ function DonationModal({ isOpen, onClose, campaignType }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Simulate submit
-    console.log("Donation request:", { ...formData, campaignType });
+    
+    if (!donorInfo || !donorInfo.email) {
+      alert("Please login as a donor first!");
+      onClose();
+      return;
+    }
+
+    // Create donation object
+    const donation = {
+      id: Date.now().toString(),
+      donorName: donorInfo.name,
+      donorEmail: donorInfo.email,
+      phone: formData.phone || donorInfo.phone,
+      address: donorInfo.address,
+      campaignTitle: campaign?.title || "General Campaign",
+      campaignType: campaign?.category || "General",
+      itemName: formData.itemName,
+      quantity: formData.quantity,
+      amount: formData.amount || formData.quantity,
+      pickupLocation: formData.pickupLocation,
+      date: new Date().toISOString().split("T")[0],
+      status: "Pending"
+    };
+
+    // Save to localStorage
+    const existingDonations = JSON.parse(localStorage.getItem("donorDonations") || "[]");
+    existingDonations.push(donation);
+    localStorage.setItem("donorDonations", JSON.stringify(existingDonations));
+
+    // Update campaign progress (optional - can be done by admin)
+    if (campaign) {
+      const campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
+      const updatedCampaigns = campaigns.map((c) => {
+        if (c.id === campaign.id) {
+          return {
+            ...c,
+            progress: (c.progress || 0) + 1
+          };
+        }
+        return c;
+      });
+      localStorage.setItem("campaigns", JSON.stringify(updatedCampaigns));
+      window.dispatchEvent(new Event("campaignsUpdated"));
+    }
+
     setSubmitted(true);
   };
 
@@ -61,13 +119,48 @@ function DonationModal({ isOpen, onClose, campaignType }) {
         {!submitted ? (
           <>
             <h2 className="donation-modal-title">
-              Donate for {campaignType}
+              Donate to {campaign?.title || "Campaign"}
             </h2>
             <p className="donation-modal-subtitle">
               Fill the details below to send your donation request.
             </p>
 
             <form onSubmit={handleSubmit} className="donation-modal-form">
+              <div className="form-group">
+                <label>Donor Name</label>
+                <input
+                  type="text"
+                  value={donorInfo?.name || ""}
+                  disabled
+                  className="form-input"
+                  style={{ background: "#f5f5f5" }}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Donor Email</label>
+                <input
+                  type="email"
+                  value={donorInfo?.email || ""}
+                  disabled
+                  className="form-input"
+                  style={{ background: "#f5f5f5" }}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Phone Number *</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  required
+                  className="form-input"
+                  placeholder="Your phone number"
+                />
+              </div>
+
               <div className="form-group">
                 <label>Donation Item Name *</label>
                 <input
@@ -81,19 +174,6 @@ function DonationModal({ isOpen, onClose, campaignType }) {
                 />
               </div>
 
-              <div className="form-group">
-                <label>Donation Type *</label>
-                <input
-                  type="text"
-                  name="donationType"
-                  value={formData.donationType}
-                  onChange={handleChange}
-                  required
-                  className="form-input"
-                  placeholder="e.g., Food, Clothes"
-                />
-              </div>
-
               <div className="form-row">
                 <div className="form-group">
                   <label>Quantity / Amount *</label>
@@ -104,18 +184,19 @@ function DonationModal({ isOpen, onClose, campaignType }) {
                     onChange={handleChange}
                     required
                     className="form-input"
-                    placeholder="e.g., 10 kg / ₹2000"
+                    placeholder="e.g., 10 kg or ₹2000"
                   />
                 </div>
 
                 <div className="form-group">
-                  <label>Expiry Date (if applicable)</label>
+                  <label>Amount (if monetary)</label>
                   <input
-                    type="date"
-                    name="expiryDate"
-                    value={formData.expiryDate}
+                    type="text"
+                    name="amount"
+                    value={formData.amount}
                     onChange={handleChange}
                     className="form-input"
+                    placeholder="₹ amount (optional)"
                   />
                 </div>
               </div>
@@ -129,32 +210,7 @@ function DonationModal({ isOpen, onClose, campaignType }) {
                   onChange={handleChange}
                   required
                   className="form-input"
-                  placeholder="Your full address"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Preferred Pickup Date *</label>
-                <input
-                  type="date"
-                  name="pickupDate"
-                  value={formData.pickupDate}
-                  onChange={handleChange}
-                  required
-                  className="form-input"
-                  min={new Date().toISOString().split("T")[0]}
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Additional Notes</label>
-                <textarea
-                  name="notes"
-                  value={formData.notes}
-                  onChange={handleChange}
-                  rows={3}
-                  className="form-input"
-                  placeholder="Any extra info or instructions..."
+                  placeholder="Your full address for pickup"
                 />
               </div>
 

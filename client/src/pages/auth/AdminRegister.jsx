@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Mail, Lock, User, ArrowLeft, HandHeart } from "lucide-react";
+import { Mail, Lock, User, ShieldCheck } from "lucide-react";
 import "../../styles/auth.css";
 import api from "../../services/api";
 
-function DonorRegister() {
+function AdminRegister() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
@@ -24,26 +24,18 @@ function DonorRegister() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    try {
-      const response = await api.post("/api/donors/register", formData);
 
+    try {
+      const response = await api.post("/api/admin/register", formData);
       if (response.data?.success) {
-        // Store donor data (and token if needed) in localStorage
-        localStorage.setItem(
-          "donor",
-          JSON.stringify({
-            ...response.data.data,
-            token: response.data.token,
-          })
-        );
-        alert("Registration successful!");
-        navigate("/donor-login");
+        alert("Admin registered successfully!");
+        navigate("/admin-login");
       } else {
         alert(response.data?.message || "Registration failed");
       }
     } catch (error) {
       const message =
-        error.response?.data?.message || "Error while registering donor";
+        error.response?.data?.message || "Error while registering admin";
       alert(message);
     } finally {
       setLoading(false);
@@ -53,49 +45,48 @@ function DonorRegister() {
   return (
     <div className="auth-page">
       <Link to="/" className="back-home">
-        <ArrowLeft className="back-icon" />
-        Back to Home
+        ← Back to Welcome
       </Link>
 
       <div className="auth-container">
         <div className="auth-header">
-          <HandHeart className="auth-logo" />
-          <h1>Donor Register</h1>
-          <p>Join SevaSetu and start making an impact</p>
+          <ShieldCheck className="auth-logo" />
+          <h1>Admin Register</h1>
+          <p>Create an admin account for SevaSetu</p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
             <label htmlFor="name">
               <User className="label-icon" />
-              Full Name
+              Name
             </label>
             <input
-              type="text"
               id="name"
+              type="text"
               name="name"
               value={formData.name}
               onChange={handleChange}
               required
               className="form-input"
-              placeholder="Your full name"
+              placeholder="Admin Name"
             />
           </div>
 
           <div className="form-group">
             <label htmlFor="email">
               <Mail className="label-icon" />
-              Email Address
+              Email
             </label>
             <input
-              type="email"
               id="email"
+              type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}
               required
               className="form-input"
-              placeholder="your.email@example.com"
+              placeholder="admin@sevasetu.org"
             />
           </div>
 
@@ -105,24 +96,23 @@ function DonorRegister() {
               Password
             </label>
             <input
-              type="password"
               id="password"
+              type="password"
               name="password"
               value={formData.password}
               onChange={handleChange}
               required
               className="form-input"
-              placeholder="Create a secure password"
+              placeholder="Create a strong password"
             />
           </div>
 
           <button type="submit" className="auth-submit-btn" disabled={loading}>
-            {loading ? "Registering..." : "Register as Donor"}
+            {loading ? "Registering..." : "Register as Admin"}
           </button>
 
           <p className="auth-footer">
-            Already have an account?{" "}
-            <Link to="/donor-login">Login here</Link>
+            Already registered? <Link to="/admin-login">Login here</Link>
           </p>
         </form>
       </div>
@@ -130,4 +120,6 @@ function DonorRegister() {
   );
 }
 
-export default DonorRegister;
+export default AdminRegister;
+
+

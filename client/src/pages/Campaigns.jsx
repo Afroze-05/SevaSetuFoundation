@@ -1,87 +1,40 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import CampaignCard from "../components/CampaignCard";
 import DonationModal from "../components/DonationModal";
-import { Search, Filter } from "lucide-react";
+import { Search, Filter, Heart } from "lucide-react";
 import "./Campaigns.css";
 
 function Campaigns() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState(null);
-
-  // FIXED: missing states
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
+  const [campaigns, setCampaigns] = useState([]);
 
-  const campaigns = [
-    {
-      id: 1,
-      title: "Food Donation Drive",
-      description:
-        "Help us provide nutritious meals to families in need. Every contribution counts!",
-      type: "Food",
-      required: 500,
-      collected: 320,
-      image:
-        "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=600",
-    },
-    {
-      id: 2,
-      title: "Stationary Donation Campaign",
-      description:
-        "Support education by donating books, notebooks, pens, and other school supplies.",
-      type: "Education",
-      required: 200,
-      collected: 150,
-      image:
-        "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?w=600",
-    },
-    {
-      id: 3,
-      title: "Clothes Donation Drive",
-      description:
-        "Donate clean, gently used clothing to help those in need stay warm and comfortable.",
-      type: "Clothing",
-      required: 1000,
-      collected: 450,
-      image:
-        "https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=600",
-    },
-    {
-      id: 4,
-      title: "Toiletries Collection",
-      description:
-        "Essential hygiene products for families. Soap, toothpaste, sanitary items needed.",
-      type: "Hygiene",
-      required: 300,
-      collected: 180,
-      image:
-        "https://images.unsplash.com/photo-1556910103-1c02745aae4d?w=600",
-    },
-    {
-      id: 5,
-      title: "Accessories & Essentials",
-      description:
-        "Donate bags, shoes, and other essential accessories for daily use.",
-      type: "Accessories",
-      required: 400,
-      collected: 250,
-      image:
-        "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600",
-    },
-    {
-      id: 6,
-      title: "Financial Support Fund",
-      description:
-        "Monetary donations to support our various programs and emergency relief efforts.",
-      type: "Financial",
-      required: 100000,
-      collected: 65000,
-      image:
-        "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=600",
-    },
-  ];
+  // Load campaigns from localStorage
+  useEffect(() => {
+    const storedCampaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
+    setCampaigns(storedCampaigns);
+  }, []);
+
+  // Listen for storage changes (when admin adds/edits campaigns)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const storedCampaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
+      setCampaigns(storedCampaigns);
+    };
+    
+    window.addEventListener("storage", handleStorageChange);
+    // Also listen for custom event (same-tab updates)
+    window.addEventListener("campaignsUpdated", handleStorageChange);
+    
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("campaignsUpdated", handleStorageChange);
+    };
+  }, []);
 
   const handleDonateClick = (campaign) => {
     setSelectedCampaign(campaign);
@@ -95,12 +48,12 @@ function Campaigns() {
 
   const filteredCampaigns = campaigns.filter((campaign) => {
     const matchesSearch =
-      campaign.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      campaign.description.toLowerCase().includes(searchTerm.toLowerCase());
+      campaign.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      campaign.description?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesFilter =
       filterType === "all" ||
-      campaign.type.toLowerCase() === filterType.toLowerCase();
+      campaign.category?.toLowerCase() === filterType.toLowerCase();
 
     return matchesSearch && matchesFilter;
   });
@@ -147,19 +100,26 @@ function Campaigns() {
       </div>
 
       <div className="campaigns-grid">
-        {filteredCampaigns.map((campaign) => (
-          <CampaignCard
-            key={campaign.id}
-            campaign={campaign}
-            onDonate={() => handleDonateClick(campaign)}
-          />
-        ))}
+        {filteredCampaigns.length > 0 ? (
+          filteredCampaigns.map((campaign) => (
+            <CampaignCard
+              key={campaign.id}
+              campaign={campaign}
+              onDonate={() => handleDonateClick(campaign)}
+            />
+          ))
+        ) : (
+          <div className="no-results">
+            <Heart className="no-results-icon" size={48} />
+            <p>No campaigns found. Check back later!</p>
+          </div>
+        )}
       </div>
 
       <DonationModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
-        campaignType={selectedCampaign?.type || selectedCampaign?.title}
+        campaign={selectedCampaign}
       />
 
       <Footer />

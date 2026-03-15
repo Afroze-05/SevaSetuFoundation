@@ -26,7 +26,26 @@ function Volunteers() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Volunteer application:", formData);
+    
+    // Create volunteer request object
+    const volunteerRequest = {
+      id: Date.now().toString(),
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      address: formData.address,
+      availability: formData.availability,
+      skills: formData.skills,
+      motivation: formData.motivation,
+      date: new Date().toISOString().split("T")[0],
+      status: "Pending"
+    };
+
+    // Save to localStorage
+    const existingRequests = JSON.parse(localStorage.getItem("volunteerRequests") || "[]");
+    existingRequests.push(volunteerRequest);
+    localStorage.setItem("volunteerRequests", JSON.stringify(existingRequests));
+
     setSubmitted(true);
     setFormData({
       name: "",
