@@ -16,6 +16,8 @@ import DonorRegister from "./pages/auth/DonorRegister";
 import AdminLogin from "./pages/auth/AdminLogin";
 import AdminRegister from "./pages/auth/AdminRegister";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminProfile from "./pages/AdminProfile";
+import MyVolunteerRequests from "./pages/MyVolunteerRequests";
 import ScrollToTop from "./ScrollToTop";
 
 function App() {
@@ -43,6 +45,8 @@ return (
 <Route path="/admin-login" element={<AdminLogin />} />
 <Route path="/admin-register" element={<AdminRegister />} />
 <Route path="/admin-dashboard" element={<AdminDashboard />} />
+<Route path="/admin-profile" element={<AdminProfile />} />
+<Route path="/my-volunteer-requests" element={<MyVolunteerRequests />} />
 
 </Routes>
 </>

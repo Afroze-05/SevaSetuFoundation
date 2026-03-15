@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { Users, CheckCircle, Calendar, MapPin, Clock, Heart } from "lucide-react";
@@ -149,6 +150,9 @@ function Volunteers() {
                   <CheckCircle className="success-icon" />
                   <h3>Application Submitted!</h3>
                   <p>Thank you for your interest. We'll contact you soon.</p>
+                  <Link to="/my-volunteer-requests" className="view-requests-link">
+                    View My Volunteer Requests
+                  </Link>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="volunteer-form">

@@ -229,10 +229,29 @@
     margin-bottom: 15px;
   }
   
-  .success-message p {
-    color: var(--text-dark);
-    font-size: 1.1rem;
-  }
+.success-message p {
+  color: var(--text-dark);
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+}
+
+.view-requests-link {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 12px 24px;
+  background: var(--primary-green);
+  color: var(--white);
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.view-requests-link:hover {
+  background: #1B5E20;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.4);
+}
   
   @media (max-width: 1024px) {
     .application-content {
