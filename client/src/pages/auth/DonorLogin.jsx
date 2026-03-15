@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, ArrowLeft, HandHeart } from "lucide-react";
-import "../../styles/auth.css";
+import "./DonorLogin.css";
 import api from "../../services/api";
 
 function DonorLogin() {
@@ -26,9 +26,16 @@ function DonorLogin() {
       const response = await api.post("/api/donors/login", formData);
 
       if (response.data?.success) {
-        // Store JWT token and donor info in localStorage
-        localStorage.setItem("donorToken", response.data.token);
-        localStorage.setItem("donor", JSON.stringify(response.data.data));
+        const donorData = response.data.data;
+        const token = response.data.token;
+
+        // Keep existing keys if used elsewhere
+        localStorage.setItem("donorToken", token);
+        localStorage.setItem("donor", JSON.stringify(donorData));
+
+        // NEW required key
+        localStorage.setItem("loggedInDonor", JSON.stringify(donorData));
+
         alert("Login successful!");
         navigate("/home");
       } else {
@@ -36,7 +43,6 @@ function DonorLogin() {
       }
     } catch (error) {
       const message = error.response?.data?.message;
-
       if (message === "Registration not done. Please register first.") {
         alert(message);
       } else {
@@ -48,23 +54,23 @@ function DonorLogin() {
   };
 
   return (
-    <div className="auth-page">
-      <Link to="/" className="back-home">
-        <ArrowLeft className="back-icon" />
+    <div className="donor-auth-page">
+      <Link to="/" className="auth-back-home">
+        <ArrowLeft className="auth-back-icon" />
         Back to Home
       </Link>
-      
-      <div className="auth-container">
-        <div className="auth-header">
+
+      <div className="auth-card">
+        <div className="auth-gradient-header">
           <HandHeart className="auth-logo" />
           <h1>Donor Login</h1>
           <p>Welcome back! Please login to continue</p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
+          <div className="auth-form-group">
             <label htmlFor="email">
-              <Mail className="label-icon" />
+              <Mail className="auth-label-icon" />
               Email Address
             </label>
             <input
@@ -74,14 +80,14 @@ function DonorLogin() {
               value={formData.email}
               onChange={handleChange}
               required
-              className="form-input"
+              className="auth-input"
               placeholder="your.email@example.com"
             />
           </div>
 
-          <div className="form-group">
+          <div className="auth-form-group">
             <label htmlFor="password">
-              <Lock className="label-icon" />
+              <Lock className="auth-label-icon" />
               Password
             </label>
             <input
@@ -91,25 +97,28 @@ function DonorLogin() {
               value={formData.password}
               onChange={handleChange}
               required
-              className="form-input"
+              className="auth-input"
               placeholder="Enter your password"
             />
           </div>
 
-          <div className="form-options">
-            <label className="remember-me">
+          <div className="auth-form-options">
+            <label className="auth-remember-me">
               <input type="checkbox" />
               Remember me
             </label>
-            <Link to="#" className="forgot-password">Forgot Password?</Link>
+            <span className="auth-forgot">Forgot Password?</span>
           </div>
 
           <button type="submit" className="auth-submit-btn" disabled={loading}>
             {loading ? "Logging in..." : "Login"}
           </button>
 
-          <p className="auth-footer">
-            Don't have an account? <Link to="/donor-register">Register here</Link>
+          <p className="auth-footer-text">
+            Don’t have an account?{" "}
+            <Link to="/donor-register" className="auth-link">
+              Register here
+            </Link>
           </p>
         </form>
       </div>

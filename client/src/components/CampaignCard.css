@@ -1,140 +1,161 @@
 .campaign-card {
-    background: var(--white);
-    border-radius: 15px;
-    overflow: hidden;
-    box-shadow: var(--shadow);
-    transition: all 0.3s ease;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, 0.16);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, translate 0.18s;
+}
+
+.campaign-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 55px rgba(15, 23, 42, 0.25);
+}
+
+/* Media */
+.campaign-card-media {
+  position: relative;
+  overflow: hidden;
+}
+
+.campaign-card-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.campaign-card:hover .campaign-card-image {
+  transform: scale(1.06);
+}
+
+.campaign-card-badge {
+  position: absolute;
+  left: 0.9rem;
+  bottom: 0.9rem;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.88);
+  color: #f9fafb;
+  backdrop-filter: blur(10px);
+}
+
+/* Body */
+.campaign-card-body {
+  padding: 1rem 1.1rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.campaign-card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.campaign-card-description {
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+/* Stats */
+.campaign-card-stats {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.3rem;
+}
+
+.campaign-card-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.campaign-card-stat-icon {
+  width: 18px;
+  height: 18px;
+  color: #6b7280;
+}
+
+.campaign-card-stat-icon.donated {
+  color: #ef4444;
+}
+
+.campaign-card-stat-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.campaign-card-stat-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Progress */
+.campaign-card-progress {
+  margin-top: 0.5rem;
+  margin-bottom: 0.25rem;
+  background: #f3f4f6;
+  border-radius: 999px;
+  height: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.campaign-card-progress-bar {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 0.4rem;
+  position: relative;
+  transition: width 0.35s ease;
+}
+
+.campaign-card-progress-text {
+  font-size: 0.65rem;
+  color: #ecfdf5;
+}
+
+/* Button */
+.campaign-card-btn {
+  border: none;
+  border-radius: 999px;
+  margin: 0.4rem 1.1rem 1rem;
+  padding: 0.7rem 0.95rem;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  box-shadow: 0 12px 30px rgba(79, 70, 229, 0.35);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.campaign-card-btn-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.campaign-card-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 40px rgba(79, 70, 229, 0.45);
+}
+
+@media (max-width: 768px) {
+  .campaign-card-image {
+    height: 170px;
   }
-  
-  .campaign-card:hover {
-    transform: translateY(-10px);
-    box-shadow: var(--shadow-hover);
-  }
-  
-  .campaign-image-container {
-    position: relative;
-    width: 100%;
-    height: 250px;
-    overflow: hidden;
-  }
-  
-  .campaign-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-  }
-  
-  .campaign-card:hover .campaign-image {
-    transform: scale(1.1);
-  }
-  
-  .campaign-badge {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: var(--primary-green);
-    color: var(--white);
-    padding: 6px 15px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
-  }
-  
-  .campaign-content {
-    padding: 25px;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .campaign-title {
-    color: var(--text-dark);
-    font-size: 1.5rem;
-    margin-bottom: 12px;
-    font-weight: 600;
-  }
-  
-  .campaign-description {
-    color: var(--text-light);
-    margin-bottom: 20px;
-    line-height: 1.6;
-    flex-grow: 1;
-  }
-  
-  .campaign-stats {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-  }
-  
-  .stat-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--text-dark);
-    font-size: 0.9rem;
-  }
-  
-  .stat-icon {
-    width: 18px;
-    height: 18px;
-    color: var(--primary-green);
-  }
-  
-  .progress-bar-container {
-    width: 100%;
-    height: 30px;
-    background-color: var(--background-light);
-    border-radius: 15px;
-    overflow: hidden;
-    margin-bottom: 20px;
-    position: relative;
-  }
-  
-  .progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, var(--primary-green), var(--secondary-blue));
-    border-radius: 15px;
-    transition: width 0.5s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-  }
-  
-  .progress-text {
-    color: var(--white);
-    font-weight: 600;
-    font-size: 0.85rem;
-    z-index: 1;
-  }
-  
-  .campaign-donate-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    background: linear-gradient(135deg, var(--primary-green), var(--secondary-blue));
-    color: var(--white);
-    padding: 12px 25px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    margin-top: auto;
-  }
-  
-  .campaign-donate-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 4px 15px rgba(46, 125, 50, 0.4);
-  }
-  
-  .btn-arrow {
-    width: 18px;
-    height: 18px;
-  }
+}

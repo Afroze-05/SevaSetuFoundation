@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, User, ArrowLeft, HandHeart } from "lucide-react";
-import "../../styles/auth.css";
+import "./DonorRegister.css";
 import api from "../../services/api";
 
 function DonorRegister() {
@@ -28,16 +28,21 @@ function DonorRegister() {
       const response = await api.post("/api/donors/register", formData);
 
       if (response.data?.success) {
-        // Store donor data (and token if needed) in localStorage
-        localStorage.setItem(
-          "donor",
-          JSON.stringify({
-            ...response.data.data,
-            token: response.data.token,
-          })
-        );
+        const donorData = {
+          ...response.data.data,
+          token: response.data.token,
+        };
+
+        // Existing key
+        localStorage.setItem("donor", JSON.stringify(donorData));
+
+        // NEW required key + optional token
+        localStorage.setItem("loggedInDonor", JSON.stringify(response.data.data));
+        localStorage.setItem("donorToken", response.data.token || "");
+
         alert("Registration successful!");
-        navigate("/donor-login");
+        // Requirement: donor registers → navigate to /home
+        navigate("/home");
       } else {
         alert(response.data?.message || "Registration failed");
       }
@@ -51,23 +56,23 @@ function DonorRegister() {
   };
 
   return (
-    <div className="auth-page">
-      <Link to="/" className="back-home">
-        <ArrowLeft className="back-icon" />
+    <div className="donor-auth-page">
+      <Link to="/" className="auth-back-home">
+        <ArrowLeft className="auth-back-icon" />
         Back to Home
       </Link>
 
-      <div className="auth-container">
-        <div className="auth-header">
+      <div className="auth-card">
+        <div className="auth-gradient-header">
           <HandHeart className="auth-logo" />
           <h1>Donor Register</h1>
           <p>Join SevaSetu and start making an impact</p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
+          <div className="auth-form-group">
             <label htmlFor="name">
-              <User className="label-icon" />
+              <User className="auth-label-icon" />
               Full Name
             </label>
             <input
@@ -77,14 +82,14 @@ function DonorRegister() {
               value={formData.name}
               onChange={handleChange}
               required
-              className="form-input"
+              className="auth-input"
               placeholder="Your full name"
             />
           </div>
 
-          <div className="form-group">
+          <div className="auth-form-group">
             <label htmlFor="email">
-              <Mail className="label-icon" />
+              <Mail className="auth-label-icon" />
               Email Address
             </label>
             <input
@@ -94,14 +99,14 @@ function DonorRegister() {
               value={formData.email}
               onChange={handleChange}
               required
-              className="form-input"
+              className="auth-input"
               placeholder="your.email@example.com"
             />
           </div>
 
-          <div className="form-group">
+          <div className="auth-form-group">
             <label htmlFor="password">
-              <Lock className="label-icon" />
+              <Lock className="auth-label-icon" />
               Password
             </label>
             <input
@@ -111,7 +116,7 @@ function DonorRegister() {
               value={formData.password}
               onChange={handleChange}
               required
-              className="form-input"
+              className="auth-input"
               placeholder="Create a secure password"
             />
           </div>
@@ -120,9 +125,11 @@ function DonorRegister() {
             {loading ? "Registering..." : "Register as Donor"}
           </button>
 
-          <p className="auth-footer">
+          <p className="auth-footer-text">
             Already have an account?{" "}
-            <Link to="/donor-login">Login here</Link>
+            <Link to="/donor-login" className="auth-link">
+              Login here
+            </Link>
           </p>
         </form>
       </div>

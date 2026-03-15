@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Mail, Lock, User, ShieldCheck } from "lucide-react";
-import "../../styles/auth.css";
+import { Mail, Lock, User, ShieldCheck, ArrowLeft } from "lucide-react";
+import "./AdminRegister.css";
 import api from "../../services/api";
 
 function AdminRegister() {
@@ -28,8 +28,17 @@ function AdminRegister() {
     try {
       const response = await api.post("/api/admin/register", formData);
       if (response.data?.success) {
+        const adminData = response.data.data || {
+          name: formData.name,
+          email: formData.email,
+        };
+
+        // Store admin data directly as logged in admin
+        localStorage.setItem("loggedInAdmin", JSON.stringify(adminData));
+
         alert("Admin registered successfully!");
-        navigate("/admin-login");
+        // Requirement: admin registers → navigate to /admin-dashboard
+        navigate("/admin-dashboard");
       } else {
         alert(response.data?.message || "Registration failed");
       }
@@ -43,22 +52,23 @@ function AdminRegister() {
   };
 
   return (
-    <div className="auth-page">
-      <Link to="/" className="back-home">
-        ← Back to Welcome
+    <div className="admin-auth-page">
+      <Link to="/" className="auth-back-home">
+        <ArrowLeft className="auth-back-icon" />
+        Back to Welcome
       </Link>
 
-      <div className="auth-container">
-        <div className="auth-header">
+      <div className="auth-card">
+        <div className="auth-gradient-header admin">
           <ShieldCheck className="auth-logo" />
           <h1>Admin Register</h1>
           <p>Create an admin account for SevaSetu</p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
+          <div className="auth-form-group">
             <label htmlFor="name">
-              <User className="label-icon" />
+              <User className="auth-label-icon" />
               Name
             </label>
             <input
@@ -68,14 +78,14 @@ function AdminRegister() {
               value={formData.name}
               onChange={handleChange}
               required
-              className="form-input"
+              className="auth-input"
               placeholder="Admin Name"
             />
           </div>
 
-          <div className="form-group">
+          <div className="auth-form-group">
             <label htmlFor="email">
-              <Mail className="label-icon" />
+              <Mail className="auth-label-icon" />
               Email
             </label>
             <input
@@ -85,14 +95,14 @@ function AdminRegister() {
               value={formData.email}
               onChange={handleChange}
               required
-              className="form-input"
+              className="auth-input"
               placeholder="admin@sevasetu.org"
             />
           </div>
 
-          <div className="form-group">
+          <div className="auth-form-group">
             <label htmlFor="password">
-              <Lock className="label-icon" />
+              <Lock className="auth-label-icon" />
               Password
             </label>
             <input
@@ -102,17 +112,20 @@ function AdminRegister() {
               value={formData.password}
               onChange={handleChange}
               required
-              className="form-input"
+              className="auth-input"
               placeholder="Create a strong password"
             />
           </div>
 
-          <button type="submit" className="auth-submit-btn" disabled={loading}>
+          <button type="submit" className="auth-submit-btn admin" disabled={loading}>
             {loading ? "Registering..." : "Register as Admin"}
           </button>
 
-          <p className="auth-footer">
-            Already registered? <Link to="/admin-login">Login here</Link>
+          <p className="auth-footer-text">
+            Already registered?{" "}
+            <Link to="/admin-login" className="auth-link">
+              Login here
+            </Link>
           </p>
         </form>
       </div>
@@ -121,5 +134,3 @@ function AdminRegister() {
 }
 
 export default AdminRegister;
-
-

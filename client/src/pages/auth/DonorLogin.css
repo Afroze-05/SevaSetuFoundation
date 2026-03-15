@@ -1,6 +1,6 @@
-.admin-auth-page {
+.donor-auth-page {
   min-height: 100vh;
-  background: radial-gradient(circle at top, #eff6ff, #eef2ff 50%, #e5e7eb);
+  background: radial-gradient(circle at top, #fdf2ff, #f4f4ff 50%, #eef2ff);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -8,7 +8,6 @@
   box-sizing: border-box;
 }
 
-/* Reuse generic auth styles by class name */
 .auth-back-home {
   align-self: flex-start;
   display: inline-flex;
@@ -34,8 +33,8 @@
   overflow: hidden;
 }
 
-.auth-gradient-header.admin {
-  background: linear-gradient(135deg, #0f766e, #0369a1);
+.auth-gradient-header {
+  background: linear-gradient(135deg, #ec4899, #6366f1);
   color: #ffffff;
   padding: 1.75rem 1.5rem 1.5rem;
   text-align: center;
@@ -47,12 +46,12 @@
   margin-bottom: 0.75rem;
 }
 
-.auth-gradient-header.admin h1 {
+.auth-gradient-header h1 {
   font-size: 1.5rem;
   margin-bottom: 0.25rem;
 }
 
-.auth-gradient-header.admin p {
+.auth-gradient-header p {
   font-size: 0.875rem;
   opacity: 0.9;
 }
@@ -82,7 +81,7 @@
 .auth-label-icon {
   width: 16px;
   height: 16px;
-  color: #0ea5e9;
+  color: #6366f1;
 }
 
 .auth-input {
@@ -95,32 +94,51 @@
 }
 
 .auth-input:focus {
-  border-color: #0ea5e9;
-  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.15);
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
 }
 
-.auth-submit-btn.admin {
+.auth-form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+  color: #6b7280;
+}
+
+.auth-remember-me {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.auth-forgot {
+  cursor: pointer;
+  color: #6366f1;
+}
+
+.auth-submit-btn {
   margin-top: 0.5rem;
   border: none;
   border-radius: 999px;
   padding: 0.8rem 1rem;
-  background: linear-gradient(135deg, #0f766e, #0369a1);
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: #ffffff;
   font-weight: 600;
   font-size: 0.95rem;
   cursor: pointer;
-  box-shadow: 0 12px 30px rgba(15, 118, 110, 0.35);
+  box-shadow: 0 12px 30px rgba(79, 70, 229, 0.35);
   transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s;
 }
 
-.auth-submit-btn.admin:disabled {
+.auth-submit-btn:disabled {
   opacity: 0.75;
   cursor: not-allowed;
 }
 
-.auth-submit-btn.admin:hover:not(:disabled) {
+.auth-submit-btn:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 16px 40px rgba(15, 118, 110, 0.45);
+  box-shadow: 0 16px 40px rgba(79, 70, 229, 0.45);
 }
 
 .auth-footer-text {
@@ -131,7 +149,7 @@
 }
 
 .auth-link {
-  color: #0ea5e9;
+  color: #6366f1;
   font-weight: 500;
   text-decoration: none;
 }
@@ -140,8 +158,9 @@
   text-decoration: underline;
 }
 
+/* Mobile-first: card already fits small screens */
 @media (min-width: 768px) {
-  .admin-auth-page {
+  .donor-auth-page {
     justify-content: center;
     padding-top: 3rem;
   }

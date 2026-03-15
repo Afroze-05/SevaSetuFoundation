@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Mail, Lock, ShieldCheck } from "lucide-react";
-import "./AdminLogin.css"; // note: going one level up to pages/AdminLogin.css
-import api from "../../services/api";
-import { setAuthToken } from "../../services/api";
+import { Mail, Lock, ShieldCheck, ArrowLeft } from "lucide-react";
+import "./AdminLogin.css";
+import api, { setAuthToken } from "../../services/api";
 
 function AdminLogin() {
   const navigate = useNavigate();
@@ -23,9 +22,16 @@ function AdminLogin() {
 
       if (response.data?.success) {
         const token = response.data.token;
+        const adminData = response.data.data;
+
+        // Existing keys
         localStorage.setItem("adminToken", token);
-        localStorage.setItem("admin", JSON.stringify(response.data.data));
+        localStorage.setItem("admin", JSON.stringify(adminData));
         setAuthToken(token);
+
+        // NEW required key
+        localStorage.setItem("loggedInAdmin", JSON.stringify(adminData));
+
         alert("Admin login successful!");
         navigate("/admin-dashboard");
       } else {
@@ -41,22 +47,23 @@ function AdminLogin() {
   };
 
   return (
-    <div className="auth-page">
-      <Link to="/" className="back-home">
-        ← Back to Welcome
+    <div className="admin-auth-page">
+      <Link to="/" className="auth-back-home">
+        <ArrowLeft className="auth-back-icon" />
+        Back to Welcome
       </Link>
 
-      <div className="auth-container">
-        <div className="auth-header">
+      <div className="auth-card">
+        <div className="auth-gradient-header admin">
           <ShieldCheck className="auth-logo" />
           <h1>Admin Login</h1>
           <p>NGO staff access only</p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
-          <div className="form-group">
+          <div className="auth-form-group">
             <label htmlFor="adminEmail">
-              <Mail className="label-icon" />
+              <Mail className="auth-label-icon" />
               Email
             </label>
             <input
@@ -66,14 +73,14 @@ function AdminLogin() {
               value={formData.email}
               onChange={handleChange}
               required
-              className="form-input"
+              className="auth-input"
               placeholder="admin@sevasetu.org"
             />
           </div>
 
-          <div className="form-group">
+          <div className="auth-form-group">
             <label htmlFor="adminPassword">
-              <Lock className="label-icon" />
+              <Lock className="auth-label-icon" />
               Password
             </label>
             <input
@@ -83,21 +90,24 @@ function AdminLogin() {
               value={formData.password}
               onChange={handleChange}
               required
-              className="form-input"
+              className="auth-input"
               placeholder="Enter password"
             />
           </div>
 
           <button
             type="submit"
-            className="auth-submit-btn"
+            className="auth-submit-btn admin"
             disabled={loading}
           >
             {loading ? "Logging in..." : "Login as Admin"}
           </button>
 
-          <p className="auth-footer">
-            Not registered? <Link to="/admin-register">Register here</Link>
+          <p className="auth-footer-text">
+            Not registered?{" "}
+            <Link to="/admin-register" className="auth-link">
+              Register here
+            </Link>
           </p>
         </form>
       </div>

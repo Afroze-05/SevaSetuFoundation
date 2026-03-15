@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import Welcome from "./pages/Welcome";
 import Home from "./pages/Home";
@@ -20,39 +20,123 @@ import AdminProfile from "./pages/AdminProfile";
 import MyVolunteerRequests from "./pages/MyVolunteerRequests";
 import ScrollToTop from "./ScrollToTop";
 
+// Donor-protected route
+function DonorRoute({ children }) {
+  const loggedInDonor = localStorage.getItem("loggedInDonor");
+  if (!loggedInDonor) {
+    return <Navigate to="/donor-login" replace />;
+  }
+  return children;
+}
+
+// Admin-protected route
+function AdminRoute({ children }) {
+  const loggedInAdmin = localStorage.getItem("loggedInAdmin");
+  if (!loggedInAdmin) {
+    return <Navigate to="/admin-login" replace />;
+  }
+  return children;
+}
+
 function App() {
+  return (
+    <>
+      <ScrollToTop />
 
-return (
-<>
-<ScrollToTop />
+      <Routes>
+        {/* Public routes */}
+        <Route path="/" element={<Welcome />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/feedback" element={<Feedback />} />
 
-<Routes>
+        {/* Auth routes */}
+        <Route path="/donor-login" element={<DonorLogin />} />
+        <Route path="/donor-register" element={<DonorRegister />} />
+        <Route path="/admin-login" element={<AdminLogin />} />
+        <Route path="/admin-register" element={<AdminRegister />} />
 
-<Route path="/" element={<Welcome />} />
+        {/* Donor-protected routes */}
+        <Route
+          path="/home"
+          element={
+            <DonorRoute>
+              <Home />
+            </DonorRoute>
+          }
+        />
+        <Route
+          path="/campaigns"
+          element={
+            <DonorRoute>
+              <Campaigns />
+            </DonorRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <DonorRoute>
+              <Profile />
+            </DonorRoute>
+          }
+        />
+        <Route
+          path="/donations"
+          element={
+            <DonorRoute>
+              <Donations />
+            </DonorRoute>
+          }
+        />
+        <Route
+          path="/leaderboard"
+          element={
+            <DonorRoute>
+              <Leaderboard />
+            </DonorRoute>
+          }
+        />
+        <Route
+          path="/volunteers"
+          element={
+            <DonorRoute>
+              <Volunteers />
+            </DonorRoute>
+          }
+        />
+        <Route
+          path="/my-volunteer-requests"
+          element={
+            <DonorRoute>
+              <MyVolunteerRequests />
+            </DonorRoute>
+          }
+        />
 
-<Route path="/home" element={<Home />} />
-<Route path="/campaigns" element={<Campaigns />} />
-<Route path="/donations" element={<Donations />} />
-<Route path="/leaderboard" element={<Leaderboard />} />
-<Route path="/volunteers" element={<Volunteers />} />
-<Route path="/profile" element={<Profile />} />
-<Route path="/about" element={<About />} />
-<Route path="/contact" element={<Contact />} />
-<Route path="/feedback" element={<Feedback />} />
+        {/* Admin-protected routes */}
+        <Route
+          path="/admin-dashboard"
+          element={
+            <AdminRoute>
+              <AdminDashboard />
+            </AdminRoute>
+          }
+        />
+        <Route
+          path="/admin-profile"
+          element={
+            <AdminRoute>
+              <AdminProfile />
+            </AdminRoute>
+          }
+        />
 
-<Route path="/donor-login" element={<DonorLogin />} />
-<Route path="/donor-register" element={<DonorRegister />} />
-<Route path="/admin-login" element={<AdminLogin />} />
-<Route path="/admin-register" element={<AdminRegister />} />
-<Route path="/admin-dashboard" element={<AdminDashboard />} />
-<Route path="/admin-profile" element={<AdminProfile />} />
-<Route path="/my-volunteer-requests" element={<MyVolunteerRequests />} />
-
-</Routes>
-</>
-
-);
-
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
+  );
 }
 
 export default App;

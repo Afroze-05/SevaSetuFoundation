@@ -2,60 +2,77 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { User, Mail, Heart, Bell, Edit, LogOut, Camera, Phone, MapPin } from "lucide-react";
+import {
+  User,
+  Mail,
+  Heart,
+  Bell,
+  Edit,
+  LogOut,
+  Camera,
+  Phone,
+  MapPin,
+} from "lucide-react";
 import "./Profile.css";
 
 function Profile() {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState({
     name: "",
     email: "",
     phone: "",
     address: "",
     totalDonations: 0,
-    notifications: 0
+    notifications: 0,
   });
 
   // Load donor data from localStorage
   useEffect(() => {
-    const loggedInDonor = JSON.parse(localStorage.getItem("loggedInDonor") || "{}");
-    const donorDonations = JSON.parse(localStorage.getItem("donorDonations") || "[]");
-    
-    if (loggedInDonor && loggedInDonor.email) {
-      // Count donations for this donor
-      const donorDonationCount = donorDonations.filter(
-        (donation) => donation.donorEmail === loggedInDonor.email
-      ).length;
-      
-      setProfileData({
-        name: loggedInDonor.name || "",
-        email: loggedInDonor.email || "",
-        phone: loggedInDonor.phone || "",
-        address: loggedInDonor.address || "",
-        totalDonations: donorDonationCount,
-        notifications: 0 // Can be calculated from pending donations
-      });
-    } else {
-      // Redirect to login if not logged in
-      navigate("/donor-login");
-    }
+    const timeout = setTimeout(() => {
+      const loggedInDonor = JSON.parse(
+        localStorage.getItem("loggedInDonor") || "{}"
+      );
+      const donorDonations = JSON.parse(
+        localStorage.getItem("donorDonations") || "[]"
+      );
+
+      if (loggedInDonor && loggedInDonor.email) {
+        const donorDonationCount = donorDonations.filter(
+          (donation) => donation.donorEmail === loggedInDonor.email
+        ).length;
+
+        setProfileData({
+          name: loggedInDonor.name || "",
+          email: loggedInDonor.email || "",
+          phone: loggedInDonor.phone || "",
+          address: loggedInDonor.address || "",
+          totalDonations: donorDonationCount,
+          notifications: 0,
+        });
+        setLoading(false);
+      } else {
+        navigate("/donor-login");
+      }
+    }, 400); // small delay to show "Loading..."
+
+    return () => clearTimeout(timeout);
   }, [navigate]);
 
   const handleChange = (e) => {
     setProfileData({
       ...profileData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   const handleSave = () => {
-    // Save updated profile to localStorage
     const updatedDonor = {
       name: profileData.name,
       email: profileData.email,
       phone: profileData.phone,
-      address: profileData.address
+      address: profileData.address,
     };
     localStorage.setItem("loggedInDonor", JSON.stringify(updatedDonor));
     setIsEditing(false);
@@ -63,20 +80,23 @@ function Profile() {
   };
 
   const handleCancel = () => {
-    // Reload original data
-    const loggedInDonor = JSON.parse(localStorage.getItem("loggedInDonor") || "{}");
-    const donorDonations = JSON.parse(localStorage.getItem("donorDonations") || "[]");
+    const loggedInDonor = JSON.parse(
+      localStorage.getItem("loggedInDonor") || "{}"
+    );
+    const donorDonations = JSON.parse(
+      localStorage.getItem("donorDonations") || "[]"
+    );
     const donorDonationCount = donorDonations.filter(
       (donation) => donation.donorEmail === loggedInDonor.email
     ).length;
-    
+
     setProfileData({
       name: loggedInDonor.name || "",
       email: loggedInDonor.email || "",
       phone: loggedInDonor.phone || "",
       address: loggedInDonor.address || "",
       totalDonations: donorDonationCount,
-      notifications: 0
+      notifications: 0,
     });
     setIsEditing(false);
   };
@@ -87,68 +107,94 @@ function Profile() {
     navigate("/");
   };
 
+  if (loading) {
+    return (
+      <div className="profile-loading-page">
+        <p className="profile-loading-text">Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="profile-page">
       <Navbar />
-      
-      <div className="profile-container">
-        <div className="profile-header">
-          <div className="profile-avatar-section">
-            <div className="avatar-container">
-              <div className="profile-avatar">
+
+      <div className="profile-shell">
+        <header className="profile-header">
+          <div className="profile-header-gradient" />
+          <div className="profile-header-content">
+            <div className="profile-avatar-wrapper">
+              <div className="profile-avatar-circle">
                 {profileData.name.charAt(0).toUpperCase()}
               </div>
-              <button className="avatar-edit-btn">
-                <Camera className="camera-icon" />
+              <button className="profile-avatar-edit">
+                <Camera className="profile-avatar-icon" />
               </button>
             </div>
-            <h1 className="profile-name">{profileData.name}</h1>
-            <p className="profile-email">{profileData.email}</p>
-          </div>
-        </div>
-
-        <div className="profile-content">
-          <div className="profile-stats">
-            <div className="stat-card">
-              <Heart className="stat-icon" />
-              <div className="stat-info">
-                <div className="stat-value">{profileData.totalDonations}</div>
-                <div className="stat-label">Total Donations</div>
-              </div>
-            </div>
-            <div className="stat-card">
-              <Bell className="stat-icon" />
-              <div className="stat-info">
-                <div className="stat-value">{profileData.notifications}</div>
-                <div className="stat-label">Notifications</div>
-              </div>
+            <div className="profile-header-text">
+              <h1>{profileData.name}</h1>
+              <p>{profileData.email}</p>
             </div>
           </div>
+        </header>
 
-          <div className="profile-details-card">
-            <div className="card-header">
+        <main className="profile-main">
+          <section className="profile-stats-row">
+            <div className="profile-stat-card">
+              <Heart className="profile-stat-icon heart" />
+              <div>
+                <p className="profile-stat-label">Total Donations</p>
+                <p className="profile-stat-value">
+                  {profileData.totalDonations}
+                </p>
+              </div>
+            </div>
+            <div className="profile-stat-card">
+              <Bell className="profile-stat-icon bell" />
+              <div>
+                <p className="profile-stat-label">Notifications</p>
+                <p className="profile-stat-value">
+                  {profileData.notifications}
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section className="profile-card">
+            <div className="profile-card-header">
               <h2>Profile Information</h2>
               {!isEditing ? (
-                <button onClick={() => setIsEditing(true)} className="edit-btn">
-                  <Edit className="edit-icon" />
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="profile-edit-btn"
+                >
+                  <Edit className="profile-edit-icon" />
                   Edit Profile
                 </button>
               ) : (
-                <div className="edit-actions">
-                  <button onClick={handleCancel} className="cancel-btn">
+                <div className="profile-edit-actions">
+                  <button
+                    onClick={handleCancel}
+                    className="profile-cancel-btn"
+                    type="button"
+                  >
                     Cancel
                   </button>
-                  <button onClick={handleSave} className="save-btn">
+                  <button
+                    onClick={handleSave}
+                    className="profile-save-btn"
+                    type="button"
+                  >
                     Save Changes
                   </button>
                 </div>
               )}
             </div>
 
-            <div className="profile-form">
-              <div className="form-group">
+            <div className="profile-form-grid">
+              <div className="profile-form-group">
                 <label>
-                  <User className="label-icon" />
+                  <User className="profile-label-icon" />
                   Full Name
                 </label>
                 {isEditing ? (
@@ -157,16 +203,16 @@ function Profile() {
                     name="name"
                     value={profileData.name}
                     onChange={handleChange}
-                    className="form-input"
+                    className="profile-input"
                   />
                 ) : (
-                  <div className="form-value">{profileData.name}</div>
+                  <p className="profile-value">{profileData.name}</p>
                 )}
               </div>
 
-              <div className="form-group">
+              <div className="profile-form-group">
                 <label>
-                  <Mail className="label-icon" />
+                  <Mail className="profile-label-icon" />
                   Email Address
                 </label>
                 {isEditing ? (
@@ -175,16 +221,16 @@ function Profile() {
                     name="email"
                     value={profileData.email}
                     onChange={handleChange}
-                    className="form-input"
+                    className="profile-input"
                   />
                 ) : (
-                  <div className="form-value">{profileData.email}</div>
+                  <p className="profile-value">{profileData.email}</p>
                 )}
               </div>
 
-              <div className="form-group">
+              <div className="profile-form-group">
                 <label>
-                  <Phone className="label-icon" />
+                  <Phone className="profile-label-icon" />
                   Phone Number
                 </label>
                 {isEditing ? (
@@ -193,16 +239,18 @@ function Profile() {
                     name="phone"
                     value={profileData.phone}
                     onChange={handleChange}
-                    className="form-input"
+                    className="profile-input"
                   />
                 ) : (
-                  <div className="form-value">{profileData.phone || "Not provided"}</div>
+                  <p className="profile-value">
+                    {profileData.phone || "Not provided"}
+                  </p>
                 )}
               </div>
 
-              <div className="form-group">
+              <div className="profile-form-group wide">
                 <label>
-                  <MapPin className="label-icon" />
+                  <MapPin className="profile-label-icon" />
                   Address
                 </label>
                 {isEditing ? (
@@ -210,29 +258,35 @@ function Profile() {
                     name="address"
                     value={profileData.address}
                     onChange={handleChange}
-                    className="form-input"
-                    rows="3"
+                    className="profile-input"
+                    rows={3}
                   />
                 ) : (
-                  <div className="form-value">{profileData.address || "Not provided"}</div>
+                  <p className="profile-value">
+                    {profileData.address || "Not provided"}
+                  </p>
                 )}
               </div>
             </div>
-          </div>
+          </section>
 
-          <div className="profile-actions">
-            <Link to="/donations" className="action-btn primary">
+          <section className="profile-actions-row">
+            <Link to="/donations" className="profile-action-btn primary">
               View My Donations
             </Link>
-            <Link to="/campaigns" className="action-btn secondary">
+            <Link to="/campaigns" className="profile-action-btn secondary">
               Browse Campaigns
             </Link>
-            <button onClick={handleLogout} className="action-btn danger">
-              <LogOut className="btn-icon" />
+            <button
+              onClick={handleLogout}
+              className="profile-action-btn danger"
+              type="button"
+            >
+              <LogOut className="profile-action-icon" />
               Logout
             </button>
-          </div>
-        </div>
+          </section>
+        </main>
       </div>
 
       <Footer />

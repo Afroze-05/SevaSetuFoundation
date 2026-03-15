@@ -12,12 +12,13 @@ function DonationModal({ isOpen, onClose, campaign }) {
   const [submitted, setSubmitted] = useState(false);
   const [donorInfo, setDonorInfo] = useState(null);
 
-  // Lock scroll when modal is open
-  // Load donor info from localStorage
+  // Load donor info and prefill phone/address
   useEffect(() => {
-    const loggedInDonor = JSON.parse(localStorage.getItem("loggedInDonor") || "{}");
+    const loggedInDonor = JSON.parse(
+      localStorage.getItem("loggedInDonor") || "{}"
+    );
     setDonorInfo(loggedInDonor);
-    
+
     if (loggedInDonor && isOpen) {
       setFormData((prev) => ({
         ...prev,
@@ -27,12 +28,16 @@ function DonationModal({ isOpen, onClose, campaign }) {
     }
   }, [isOpen]);
 
+  // Lock body scroll when modal open
   useEffect(() => {
     if (isOpen) document.body.style.overflow = "hidden";
     else document.body.style.overflow = "auto";
-    return () => (document.body.style.overflow = "auto");
+    return () => {
+      document.body.style.overflow = "auto";
+    };
   }, [isOpen]);
 
+  // Reset form when opening
   useEffect(() => {
     if (isOpen) {
       setSubmitted(false);
@@ -61,14 +66,13 @@ function DonationModal({ isOpen, onClose, campaign }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (!donorInfo || !donorInfo.email) {
       alert("Please login as a donor first!");
       onClose();
       return;
     }
 
-    // Create donation object
     const donation = {
       id: Date.now().toString(),
       donorName: donorInfo.name,
@@ -82,22 +86,24 @@ function DonationModal({ isOpen, onClose, campaign }) {
       amount: formData.amount || formData.quantity,
       pickupLocation: formData.pickupLocation,
       date: new Date().toISOString().split("T")[0],
-      status: "Pending"
+      status: "Pending",
     };
 
-    // Save to localStorage
-    const existingDonations = JSON.parse(localStorage.getItem("donorDonations") || "[]");
+    const existingDonations = JSON.parse(
+      localStorage.getItem("donorDonations") || "[]"
+    );
     existingDonations.push(donation);
     localStorage.setItem("donorDonations", JSON.stringify(existingDonations));
 
-    // Update campaign progress (optional - can be done by admin)
     if (campaign) {
-      const campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
+      const campaigns = JSON.parse(
+        localStorage.getItem("campaigns") || "[]"
+      );
       const updatedCampaigns = campaigns.map((c) => {
         if (c.id === campaign.id) {
           return {
             ...c,
-            progress: (c.progress || 0) + 1
+            progress: (c.progress || 0) + 1,
           };
         }
         return c;
@@ -111,7 +117,7 @@ function DonationModal({ isOpen, onClose, campaign }) {
 
   return (
     <div className="donation-modal-overlay" onClick={handleOverlayClick}>
-      <div className="donation-modal">
+      <div className="donation-modal-card">
         <button className="donation-modal-close" onClick={onClose}>
           ✕
         </button>
@@ -126,29 +132,27 @@ function DonationModal({ isOpen, onClose, campaign }) {
             </p>
 
             <form onSubmit={handleSubmit} className="donation-modal-form">
-              <div className="form-group">
+              <div className="dm-form-group">
                 <label>Donor Name</label>
                 <input
                   type="text"
                   value={donorInfo?.name || ""}
                   disabled
-                  className="form-input"
-                  style={{ background: "#f5f5f5" }}
+                  className="dm-input dm-input-disabled"
                 />
               </div>
 
-              <div className="form-group">
+              <div className="dm-form-group">
                 <label>Donor Email</label>
                 <input
                   type="email"
                   value={donorInfo?.email || ""}
                   disabled
-                  className="form-input"
-                  style={{ background: "#f5f5f5" }}
+                  className="dm-input dm-input-disabled"
                 />
               </div>
 
-              <div className="form-group">
+              <div className="dm-form-group">
                 <label>Phone Number *</label>
                 <input
                   type="tel"
@@ -156,12 +160,12 @@ function DonationModal({ isOpen, onClose, campaign }) {
                   value={formData.phone}
                   onChange={handleChange}
                   required
-                  className="form-input"
+                  className="dm-input"
                   placeholder="Your phone number"
                 />
               </div>
 
-              <div className="form-group">
+              <div className="dm-form-group">
                 <label>Donation Item Name *</label>
                 <input
                   type="text"
@@ -169,13 +173,13 @@ function DonationModal({ isOpen, onClose, campaign }) {
                   value={formData.itemName}
                   onChange={handleChange}
                   required
-                  className="form-input"
+                  className="dm-input"
                   placeholder="e.g., Rice, Shirts, Notebooks"
                 />
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
+              <div className="dm-form-row">
+                <div className="dm-form-group">
                   <label>Quantity / Amount *</label>
                   <input
                     type="text"
@@ -183,25 +187,25 @@ function DonationModal({ isOpen, onClose, campaign }) {
                     value={formData.quantity}
                     onChange={handleChange}
                     required
-                    className="form-input"
+                    className="dm-input"
                     placeholder="e.g., 10 kg or ₹2000"
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="dm-form-group">
                   <label>Amount (if monetary)</label>
                   <input
                     type="text"
                     name="amount"
                     value={formData.amount}
                     onChange={handleChange}
-                    className="form-input"
+                    className="dm-input"
                     placeholder="₹ amount (optional)"
                   />
                 </div>
               </div>
 
-              <div className="form-group">
+              <div className="dm-form-group">
                 <label>Pickup Location *</label>
                 <input
                   type="text"
@@ -209,7 +213,7 @@ function DonationModal({ isOpen, onClose, campaign }) {
                   value={formData.pickupLocation}
                   onChange={handleChange}
                   required
-                  className="form-input"
+                  className="dm-input"
                   placeholder="Your full address for pickup"
                 />
               </div>
@@ -217,12 +221,12 @@ function DonationModal({ isOpen, onClose, campaign }) {
               <div className="donation-modal-actions">
                 <button
                   type="button"
-                  className="btn-secondary-custom"
+                  className="dm-btn-secondary"
                   onClick={onClose}
                 >
                   Cancel
                 </button>
-                <button type="submit" className="btn-primary-custom">
+                <button type="submit" className="dm-btn-primary">
                   Donate
                 </button>
               </div>
@@ -231,10 +235,8 @@ function DonationModal({ isOpen, onClose, campaign }) {
         ) : (
           <div className="donation-modal-success">
             <h3>Thank You!</h3>
-            <p>
-              Your donation request has been sent to the NGO for approval.
-            </p>
-            <button className="btn-primary-custom" onClick={onClose}>
+            <p>Your donation request has been sent to the NGO for approval.</p>
+            <button className="dm-btn-primary" onClick={onClose}>
               Close
             </button>
           </div>
