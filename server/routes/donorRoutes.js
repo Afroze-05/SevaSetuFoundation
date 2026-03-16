@@ -15,5 +15,3 @@ router.post("/register", registerDonor);
 router.post("/login", loginDonor);
 
 module.exports = router;
-
-

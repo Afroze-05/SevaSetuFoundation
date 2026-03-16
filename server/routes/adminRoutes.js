@@ -24,5 +24,3 @@ router.post("/login", loginAdmin);
 router.get("/dashboard", authMiddleware, getAdminDashboard);
 
 module.exports = router;
-
-

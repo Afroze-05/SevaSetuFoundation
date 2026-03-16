@@ -126,5 +126,3 @@ module.exports = {
   registerDonor,
   loginDonor,
 };
-
-
