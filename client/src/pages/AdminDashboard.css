@@ -272,9 +272,83 @@
     font-size: 0.9rem;
   }
   
-  /* Reuse modal styles from DonationModal for campaign modal,
-     no extra CSS needed because AdminDashboard uses .donation-modal-* classes */
-  
+  .donation-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+
+    padding-top: 60px;
+    overflow-y: auto;
+    z-index: 9999;
+  }
+
+  .donation-modal {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+
+    width: min(500px, 90%);
+    max-height: 85vh;
+
+    overflow-y: auto;
+    position: relative;
+  }
+
+  .donation-modal-close {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 1rem;
+    color: #6b7280;
+    z-index: 1;
+  }
+
+  .donation-modal .donation-modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .donation-modal-title {
+    font-size: 1.25rem;
+    margin: 0 0 16px;
+    padding-right: 28px;
+  }
+
+  .donation-modal .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .donation-modal .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .donation-modal .form-input {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 0.9rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
   /* Responsive */
   @media (max-width: 768px) {
     .admin-layout {

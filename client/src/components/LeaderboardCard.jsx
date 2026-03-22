@@ -23,7 +23,7 @@ function LeaderboardCard({ donor, rank }) {
       </div>
       <div className="donor-info">
         <div className="donor-avatar">
-          {donor.name.charAt(0).toUpperCase()}
+          {(donor.name || donor.email || "?").charAt(0).toUpperCase()}
         </div>
         <div className="donor-details">
           <h3 className="donor-name">{donor.name}</h3>
@@ -33,6 +33,11 @@ function LeaderboardCard({ donor, rank }) {
       <div className="donation-stats">
         <div className="stat-value">{donor.totalDonations}</div>
         <div className="stat-label">Donations</div>
+        {donor.totalAmount > 0 && (
+          <div className="stat-label" style={{ marginTop: 4, fontSize: "0.85rem" }}>
+            ₹{Math.round(donor.totalAmount).toLocaleString()} total
+          </div>
+        )}
       </div>
     </div>
   );

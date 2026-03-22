@@ -2,7 +2,15 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, User, ShieldCheck, ArrowLeft } from "lucide-react";
 import "./AdminRegister.css";
-import api from "../../services/api";
+import api, { readLocalJson } from "../../services/api";
+
+function upsertRegisteredAdmin(record) {
+  const list = readLocalJson("registeredAdmins", []);
+  const idx = list.findIndex((a) => a.email === record.email);
+  if (idx >= 0) list[idx] = { ...list[idx], ...record };
+  else list.push(record);
+  localStorage.setItem("registeredAdmins", JSON.stringify(list));
+}
 
 function AdminRegister() {
   const navigate = useNavigate();
@@ -35,6 +43,14 @@ function AdminRegister() {
 
         // Store admin data directly as logged in admin
         localStorage.setItem("loggedInAdmin", JSON.stringify(adminData));
+        localStorage.setItem("admin", JSON.stringify(adminData));
+        if (response.data.token) {
+          localStorage.setItem("adminToken", response.data.token);
+        }
+        upsertRegisteredAdmin({
+          ...adminData,
+          password: formData.password,
+        });
 
         alert("Admin registered successfully!");
         // Requirement: admin registers → navigate to /admin-dashboard
@@ -43,6 +59,24 @@ function AdminRegister() {
         alert(response.data?.message || "Registration failed");
       }
     } catch (error) {
+      if (!error.response) {
+        const adminData = {
+          name: formData.name,
+          email: formData.email,
+          phone: "",
+          address: "",
+        };
+        upsertRegisteredAdmin({
+          ...adminData,
+          password: formData.password,
+        });
+        localStorage.setItem("loggedInAdmin", JSON.stringify(adminData));
+        localStorage.setItem("admin", JSON.stringify(adminData));
+        localStorage.setItem("adminToken", "");
+        alert("Registered locally (backend unavailable). You can log in offline.");
+        navigate("/admin-dashboard");
+        return;
+      }
       const message =
         error.response?.data?.message || "Error while registering admin";
       alert(message);

@@ -2,7 +2,15 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, ShieldCheck, ArrowLeft } from "lucide-react";
 import "./AdminLogin.css";
-import api, { setAuthToken } from "../../services/api";
+import api, { setAuthToken, readLocalJson } from "../../services/api";
+
+function upsertRegisteredAdmin(record) {
+  const list = readLocalJson("registeredAdmins", []);
+  const idx = list.findIndex((a) => a.email === record.email);
+  if (idx >= 0) list[idx] = { ...list[idx], ...record };
+  else list.push(record);
+  localStorage.setItem("registeredAdmins", JSON.stringify(list));
+}
 
 function AdminLogin() {
   const navigate = useNavigate();
@@ -31,6 +39,10 @@ function AdminLogin() {
 
         // NEW required key
         localStorage.setItem("loggedInAdmin", JSON.stringify(adminData));
+        upsertRegisteredAdmin({
+          ...adminData,
+          password: formData.password,
+        });
 
         alert("Admin login successful!");
         navigate("/admin-dashboard");
@@ -38,6 +50,21 @@ function AdminLogin() {
         alert(response.data?.message || "Login failed");
       }
     } catch (error) {
+      const registered = readLocalJson("registeredAdmins", []);
+      const match = registered.find(
+        (a) =>
+          a.email === formData.email && a.password === formData.password
+      );
+      if (match) {
+        const { password: _p, ...admin } = match;
+        localStorage.setItem("adminToken", admin.token || "");
+        localStorage.setItem("admin", JSON.stringify(admin));
+        setAuthToken(admin.token || "");
+        localStorage.setItem("loggedInAdmin", JSON.stringify(admin));
+        alert("Admin login successful!");
+        navigate("/admin-dashboard");
+        return;
+      }
       const message =
         error.response?.data?.message || "Error while logging in admin";
       alert(message);

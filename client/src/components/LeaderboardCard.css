@@ -1,127 +1,151 @@
-.leaderboard-card {
-    background: var(--white);
-    padding: 25px;
-    border-radius: 15px;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    box-shadow: var(--shadow);
-    transition: all 0.3s ease;
-    border-left: 4px solid transparent;
+.leaderboard-page {
+    min-height: 100vh;
+    background: var(--background-light);
   }
   
-  .leaderboard-card:hover {
-    transform: translateX(10px);
-    box-shadow: var(--shadow-hover);
+  .leaderboard-header {
+    text-align: center;
+    padding: 60px 20px 40px;
+    background: linear-gradient(135deg, var(--primary-green), var(--secondary-blue));
+    color: var(--white);
   }
   
-  .leaderboard-card.rank-1 {
-    border-left-color: #FFD700;
-    background: linear-gradient(135deg, #fff9e6, var(--white));
-  }
-  
-  .leaderboard-card.rank-2 {
-    border-left-color: #C0C0C0;
-    background: linear-gradient(135deg, #f5f5f5, var(--white));
-  }
-  
-  .leaderboard-card.rank-3 {
-    border-left-color: #CD7F32;
-    background: linear-gradient(135deg, #fff4e6, var(--white));
-  }
-  
-  .rank-section {
-    min-width: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .medal-icon {
-    width: 40px;
-    height: 40px;
-  }
-  
-  .medal-icon.gold {
+  .header-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 20px;
     color: #FFD700;
   }
   
-  .medal-icon.silver {
-    color: #C0C0C0;
-  }
-  
-  .medal-icon.bronze {
-    color: #CD7F32;
-  }
-  
-  .rank-number {
-    font-size: 1.5rem;
+  .page-title {
+    font-size: 3rem;
     font-weight: 700;
-    color: var(--text-light);
+    margin-bottom: 15px;
   }
   
-  .donor-info {
-    flex: 1;
+  .page-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+  }
+  
+  .timeframe-selector {
+    max-width: 1400px;
+    margin: 40px auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .timeframe-btn {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 10px;
+    padding: 15px 30px;
+    background: var(--white);
+    border: 2px solid var(--background-light);
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: var(--text-dark);
   }
   
-  .donor-avatar {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--primary-green), var(--secondary-blue));
+  .timeframe-btn:hover {
+    border-color: var(--primary-green);
+    transform: translateY(-2px);
+  }
+  
+  .timeframe-btn.active {
+    background: var(--primary-green);
     color: var(--white);
+    border-color: var(--primary-green);
+  }
+
+  .leaderboard-sort-row {
+    max-width: 1400px;
+    margin: 0 auto 16px;
+    padding: 0 20px;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
-    font-weight: 700;
+    gap: 12px;
   }
-  
-  .donor-details {
-    flex: 1;
-  }
-  
-  .donor-name {
-    color: var(--text-dark);
-    font-size: 1.2rem;
-    margin-bottom: 5px;
+
+  .leaderboard-sort-label {
     font-weight: 600;
+    color: var(--text-dark);
   }
   
-  .donor-email {
-    color: var(--text-light);
-    font-size: 0.9rem;
+  .btn-icon {
+    width: 20px;
+    height: 20px;
   }
   
-  .donation-stats {
-    text-align: center;
-    min-width: 100px;
+  .leaderboard-container {
+    max-width: 1400px;
+    margin: 0 auto 60px;
+    padding: 0 20px;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
   }
   
-  .stat-value {
-    font-size: 2rem;
-    font-weight: 700;
+  .leaderboard-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .leaderboard-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .sidebar-card {
+    background: var(--white);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: var(--shadow);
+  }
+  
+  .sidebar-card h3 {
     color: var(--primary-green);
-    margin-bottom: 5px;
+    font-size: 1.3rem;
+    margin-bottom: 15px;
   }
   
-  .stat-label {
+  .sidebar-card p {
     color: var(--text-light);
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    line-height: 1.6;
   }
   
-  @media (max-width: 768px) {
-    .leaderboard-card {
-      flex-direction: column;
-      text-align: center;
-    }
-    
-    .donor-info {
-      flex-direction: column;
+  .stat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--background-light);
+  }
+  
+  .stat-item:last-child {
+    border-bottom: none;
+  }
+  
+  .stat-item span {
+    color: var(--text-light);
+  }
+  
+  .stat-item strong {
+    color: var(--primary-green);
+    font-size: 1.1rem;
+  }
+  
+  @media (max-width: 1024px) {
+    .leaderboard-container {
+      grid-template-columns: 1fr;
     }
   }

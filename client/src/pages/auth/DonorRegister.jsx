@@ -2,7 +2,15 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, User, ArrowLeft, HandHeart } from "lucide-react";
 import "./DonorRegister.css";
-import api from "../../services/api";
+import api, { readLocalJson } from "../../services/api";
+
+function upsertRegisteredDonor(record) {
+  const list = readLocalJson("registeredDonors", []);
+  const idx = list.findIndex((d) => d.email === record.email);
+  if (idx >= 0) list[idx] = { ...list[idx], ...record };
+  else list.push(record);
+  localStorage.setItem("registeredDonors", JSON.stringify(list));
+}
 
 function DonorRegister() {
   const navigate = useNavigate();
@@ -39,14 +47,34 @@ function DonorRegister() {
         // NEW required key + optional token
         localStorage.setItem("loggedInDonor", JSON.stringify(response.data.data));
         localStorage.setItem("donorToken", response.data.token || "");
+        upsertRegisteredDonor({
+          ...response.data.data,
+          password: formData.password,
+        });
 
         alert("Registration successful!");
-        // Requirement: donor registers → navigate to /home
-        navigate("/home");
+        navigate("/");
       } else {
         alert(response.data?.message || "Registration failed");
       }
     } catch (error) {
+      if (!error.response) {
+        const localDonor = {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          phone: "",
+          address: "",
+        };
+        upsertRegisteredDonor(localDonor);
+        const { password: _p, ...forSession } = localDonor;
+        localStorage.setItem("loggedInDonor", JSON.stringify(forSession));
+        localStorage.setItem("donor", JSON.stringify(forSession));
+        localStorage.setItem("donorToken", "");
+        alert("Registered locally (backend unavailable). You can log in offline.");
+        navigate("/");
+        return;
+      }
       const message =
         error.response?.data?.message || "Error while registering donor";
       alert(message);

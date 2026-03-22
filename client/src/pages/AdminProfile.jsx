@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { User, Mail, Phone, MapPin, Edit, LogOut, Camera, LayoutDashboard } from "lucide-react";
 import "./AdminProfile.css";
+import { readLocalJson } from "../services/api";
 
 function AdminProfile() {
   const navigate = useNavigate();
@@ -17,8 +18,8 @@ function AdminProfile() {
 
   // Load admin data from localStorage
   useEffect(() => {
-    const loggedInAdmin = JSON.parse(localStorage.getItem("loggedInAdmin") || "{}");
-    const campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
+    const loggedInAdmin = readLocalJson("loggedInAdmin", null);
+    const campaigns = readLocalJson("campaigns", []);
     
     if (loggedInAdmin && loggedInAdmin.email) {
       setProfileData({
@@ -38,7 +39,7 @@ function AdminProfile() {
   // Update campaigns count when campaigns change
   useEffect(() => {
     const handleStorageChange = () => {
-      const campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
+      const campaigns = readLocalJson("campaigns", []);
       setProfileData(prev => ({
         ...prev,
         totalCampaigns: campaigns.length
@@ -70,14 +71,15 @@ function AdminProfile() {
       address: profileData.address
     };
     localStorage.setItem("loggedInAdmin", JSON.stringify(updatedAdmin));
+    localStorage.setItem("admin", JSON.stringify(updatedAdmin));
     setIsEditing(false);
     alert("Profile updated successfully!");
   };
 
   const handleCancel = () => {
     // Reload original data
-    const loggedInAdmin = JSON.parse(localStorage.getItem("loggedInAdmin") || "{}");
-    const campaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
+    const loggedInAdmin = readLocalJson("loggedInAdmin", {});
+    const campaigns = readLocalJson("campaigns", []);
     
     setProfileData({
       name: loggedInAdmin.name || "",
@@ -93,6 +95,7 @@ function AdminProfile() {
   const handleLogout = () => {
     localStorage.removeItem("loggedInAdmin");
     localStorage.removeItem("adminToken");
+    localStorage.removeItem("admin");
     navigate("/");
   };
 

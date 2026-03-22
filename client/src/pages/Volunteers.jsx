@@ -1,12 +1,13 @@
-
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { Users, CheckCircle, Calendar, MapPin, Clock, Heart } from "lucide-react";
 import "./Volunteers.css";
+import { readLocalJson } from "../services/api";
 
 function Volunteers() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -18,6 +19,19 @@ function Volunteers() {
   });
 
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    let donor = null;
+    try {
+      const raw = localStorage.getItem("loggedInDonor");
+      donor = raw ? JSON.parse(raw) : null;
+    } catch {
+      donor = null;
+    }
+    if (!donor) {
+      navigate("/login");
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     setFormData({
@@ -44,9 +58,10 @@ function Volunteers() {
     };
 
     // Save to localStorage
-    const existingRequests = JSON.parse(localStorage.getItem("volunteerRequests") || "[]");
+    const existingRequests = readLocalJson("volunteerRequests", []);
     existingRequests.push(volunteerRequest);
     localStorage.setItem("volunteerRequests", JSON.stringify(existingRequests));
+    window.dispatchEvent(new Event("volunteerRequestsUpdated"));
 
     setSubmitted(true);
     setFormData({

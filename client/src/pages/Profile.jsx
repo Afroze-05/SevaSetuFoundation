@@ -14,6 +14,7 @@ import {
   MapPin,
 } from "lucide-react";
 import "./Profile.css";
+import { readLocalJson } from "../services/api";
 
 function Profile() {
   const navigate = useNavigate();
@@ -31,12 +32,8 @@ function Profile() {
   // Load donor data from localStorage
   useEffect(() => {
     const timeout = setTimeout(() => {
-      const loggedInDonor = JSON.parse(
-        localStorage.getItem("loggedInDonor") || "{}"
-      );
-      const donorDonations = JSON.parse(
-        localStorage.getItem("donorDonations") || "[]"
-      );
+      const loggedInDonor = readLocalJson("loggedInDonor", null);
+      const donorDonations = readLocalJson("donorDonations", []);
 
       if (loggedInDonor && loggedInDonor.email) {
         const donorDonationCount = donorDonations.filter(
@@ -53,7 +50,7 @@ function Profile() {
         });
         setLoading(false);
       } else {
-        navigate("/donor-login");
+        navigate("/login");
       }
     }, 400); // small delay to show "Loading..."
 
@@ -75,17 +72,14 @@ function Profile() {
       address: profileData.address,
     };
     localStorage.setItem("loggedInDonor", JSON.stringify(updatedDonor));
+    localStorage.setItem("donor", JSON.stringify(updatedDonor));
     setIsEditing(false);
     alert("Profile updated successfully!");
   };
 
   const handleCancel = () => {
-    const loggedInDonor = JSON.parse(
-      localStorage.getItem("loggedInDonor") || "{}"
-    );
-    const donorDonations = JSON.parse(
-      localStorage.getItem("donorDonations") || "[]"
-    );
+    const loggedInDonor = readLocalJson("loggedInDonor", {});
+    const donorDonations = readLocalJson("donorDonations", []);
     const donorDonationCount = donorDonations.filter(
       (donation) => donation.donorEmail === loggedInDonor.email
     ).length;

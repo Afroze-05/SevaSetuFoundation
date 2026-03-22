@@ -1,54 +1,123 @@
-import { useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import LeaderboardCard from "../components/LeaderboardCard";
 import { Trophy, Calendar, Users } from "lucide-react";
 import "./Leaderboard.css";
+import { readLocalJson } from "../services/api";
+
+function parseMoneyish(val) {
+  if (val == null || val === "") return 0;
+  const n = parseFloat(String(val).replace(/[^\d.]/g, ""));
+  return Number.isFinite(n) ? n : 0;
+}
+
+function filterByTimeframe(donations, tf) {
+  const now = new Date();
+  if (tf === "active") return donations;
+  const cutoff = new Date();
+  if (tf === "week") cutoff.setDate(now.getDate() - 7);
+  if (tf === "month") cutoff.setMonth(now.getMonth() - 1);
+  return donations.filter((d) => {
+    const t = new Date(d.date);
+    return !Number.isNaN(t.getTime()) && t >= cutoff;
+  });
+}
+
+function aggregateDonors(donations, sortBy) {
+  const byEmail = {};
+  for (const d of donations) {
+    const email = d.donorEmail;
+    if (!email) continue;
+    if (!byEmail[email]) {
+      byEmail[email] = {
+        id: email,
+        email,
+        name: d.donorName || email,
+        totalDonations: 0,
+        totalAmount: 0,
+      };
+    }
+    byEmail[email].totalDonations += 1;
+    byEmail[email].totalAmount += parseMoneyish(d.amount || d.quantity);
+    if (d.donorName) byEmail[email].name = d.donorName;
+  }
+  const list = Object.values(byEmail);
+  list.sort((a, b) => {
+    if (sortBy === "amount") {
+      if (b.totalAmount !== a.totalAmount) return b.totalAmount - a.totalAmount;
+      return b.totalDonations - a.totalDonations;
+    }
+    if (b.totalDonations !== a.totalDonations) return b.totalDonations - a.totalDonations;
+    return b.totalAmount - a.totalAmount;
+  });
+  return list;
+}
 
 function Leaderboard() {
+  const navigate = useNavigate();
   const [timeframe, setTimeframe] = useState("week");
+  const [sortBy, setSortBy] = useState("count");
+  const [donations, setDonations] = useState([]);
 
-  const weeklyDonors = [
-    { id: 1, name: "Rajesh Kumar", email: "rajesh@example.com", totalDonations: 45 },
-    { id: 2, name: "Priya Sharma", email: "priya@example.com", totalDonations: 38 },
-    { id: 3, name: "Amit Patel", email: "amit@example.com", totalDonations: 32 },
-    { id: 4, name: "Sneha Reddy", email: "sneha@example.com", totalDonations: 28 },
-    { id: 5, name: "Vikram Singh", email: "vikram@example.com", totalDonations: 25 }
-  ];
+  useEffect(() => {
+    let donor = null;
+    try {
+      const raw = localStorage.getItem("loggedInDonor");
+      donor = raw ? JSON.parse(raw) : null;
+    } catch {
+      donor = null;
+    }
+    if (!donor) {
+      navigate("/login");
+    }
+  }, [navigate]);
 
-  const monthlyDonors = [
-    { id: 1, name: "Rajesh Kumar", email: "rajesh@example.com", totalDonations: 180 },
-    { id: 2, name: "Priya Sharma", email: "priya@example.com", totalDonations: 165 },
-    { id: 3, name: "Amit Patel", email: "amit@example.com", totalDonations: 142 },
-    { id: 4, name: "Sneha Reddy", email: "sneha@example.com", totalDonations: 128 },
-    { id: 5, name: "Vikram Singh", email: "vikram@example.com", totalDonations: 115 }
-  ];
-
-  const activeDonors = [
-    { id: 1, name: "Rajesh Kumar", email: "rajesh@example.com", totalDonations: 45 },
-    { id: 2, name: "Priya Sharma", email: "priya@example.com", totalDonations: 38 },
-    { id: 3, name: "Amit Patel", email: "amit@example.com", totalDonations: 32 },
-    { id: 4, name: "Sneha Reddy", email: "sneha@example.com", totalDonations: 28 },
-    { id: 5, name: "Vikram Singh", email: "vikram@example.com", totalDonations: 25 },
-    { id: 6, name: "Anjali Mehta", email: "anjali@example.com", totalDonations: 22 },
-    { id: 7, name: "Rahul Verma", email: "rahul@example.com", totalDonations: 20 },
-    { id: 8, name: "Kavita Nair", email: "kavita@example.com", totalDonations: 18 }
-  ];
-
-  const getDonors = () => {
-    if (timeframe === "week") return weeklyDonors;
-    if (timeframe === "month") return monthlyDonors;
-    return activeDonors;
+  const load = () => {
+    setDonations(readLocalJson("donorDonations", []));
   };
+
+  useEffect(() => {
+    load();
+    const onChange = () => load();
+    window.addEventListener("storage", onChange);
+    window.addEventListener("donationsUpdated", onChange);
+    return () => {
+      window.removeEventListener("storage", onChange);
+      window.removeEventListener("donationsUpdated", onChange);
+    };
+  }, []);
+
+  const rankedDonors = useMemo(() => {
+    const filtered = filterByTimeframe(donations, timeframe);
+    return aggregateDonors(filtered, sortBy);
+  }, [donations, timeframe, sortBy]);
+
+  const stats = useMemo(() => {
+    const filtered = filterByTimeframe(donations, timeframe);
+    const unique = new Set(filtered.map((d) => d.donorEmail).filter(Boolean));
+    const totalAmt = filtered.reduce(
+      (sum, d) => sum + parseMoneyish(d.amount || d.quantity),
+      0
+    );
+    return {
+      donorCount: unique.size,
+      donationCount: filtered.length,
+      totalAmount: totalAmt,
+    };
+  }, [donations, timeframe]);
 
   return (
     <div className="leaderboard-page">
       <Navbar />
-      
+
       <div className="leaderboard-header">
         <Trophy className="header-icon" />
         <h1 className="page-title">Top Donors Leaderboard</h1>
-        <p className="page-subtitle">Celebrating our most generous contributors</p>
+        <p className="page-subtitle">
+          Rankings from recorded donations (grouped by donor email)
+        </p>
       </div>
 
       <div className="timeframe-selector">
@@ -75,15 +144,39 @@ function Leaderboard() {
         </button>
       </div>
 
+      <div className="leaderboard-sort-row">
+        <span className="leaderboard-sort-label">Rank by:</span>
+        <button
+          type="button"
+          className={`timeframe-btn ${sortBy === "count" ? "active" : ""}`}
+          onClick={() => setSortBy("count")}
+        >
+          Donation count
+        </button>
+        <button
+          type="button"
+          className={`timeframe-btn ${sortBy === "amount" ? "active" : ""}`}
+          onClick={() => setSortBy("amount")}
+        >
+          Total amount (parsed)
+        </button>
+      </div>
+
       <div className="leaderboard-container">
         <div className="leaderboard-list">
-          {getDonors().map((donor, index) => (
-            <LeaderboardCard
-              key={donor.id}
-              donor={donor}
-              rank={index + 1}
-            />
-          ))}
+          {rankedDonors.length > 0 ? (
+            rankedDonors.map((donor, index) => (
+              <LeaderboardCard
+                key={donor.email}
+                donor={donor}
+                rank={index + 1}
+              />
+            ))
+          ) : (
+            <p style={{ textAlign: "center", padding: "2rem", color: "#64748b" }}>
+              No donations in this period yet. Make a donation to appear on the board.
+            </p>
+          )}
         </div>
 
         <div className="leaderboard-sidebar">
@@ -94,16 +187,20 @@ function Leaderboard() {
           <div className="sidebar-card">
             <h3>📊 Statistics</h3>
             <div className="stat-item">
-              <span>Total Donors:</span>
-              <strong>2,500+</strong>
+              <span>Donors (unique emails):</span>
+              <strong>{stats.donorCount}</strong>
             </div>
             <div className="stat-item">
-              <span>Total Donations:</span>
-              <strong>15,000+</strong>
+              <span>Donations (this filter):</span>
+              <strong>{stats.donationCount}</strong>
             </div>
             <div className="stat-item">
-              <span>This Month:</span>
-              <strong>1,200+</strong>
+              <span>Sum of parsed amounts:</span>
+              <strong>
+                {stats.totalAmount > 0
+                  ? `₹${Math.round(stats.totalAmount).toLocaleString()}`
+                  : "—"}
+              </strong>
             </div>
           </div>
         </div>

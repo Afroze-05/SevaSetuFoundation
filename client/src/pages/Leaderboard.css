@@ -63,6 +63,22 @@
     color: var(--white);
     border-color: var(--primary-green);
   }
+
+  .leaderboard-sort-row {
+    max-width: 1400px;
+    margin: 0 auto 16px;
+    padding: 0 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .leaderboard-sort-label {
+    font-weight: 600;
+    color: var(--text-dark);
+  }
   
   .btn-icon {
     width: 20px;

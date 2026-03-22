@@ -2,7 +2,15 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, ArrowLeft, HandHeart } from "lucide-react";
 import "./DonorLogin.css";
-import api from "../../services/api";
+import api, { readLocalJson } from "../../services/api";
+
+function upsertRegisteredDonor(record) {
+  const list = readLocalJson("registeredDonors", []);
+  const idx = list.findIndex((d) => d.email === record.email);
+  if (idx >= 0) list[idx] = { ...list[idx], ...record };
+  else list.push(record);
+  localStorage.setItem("registeredDonors", JSON.stringify(list));
+}
 
 function DonorLogin() {
   const [formData, setFormData] = useState({
@@ -24,24 +32,40 @@ function DonorLogin() {
     setLoading(true);
     try {
       const response = await api.post("/api/donors/login", formData);
+      const payload = response.data;
+      const donorData = payload?.data;
+      const token = payload?.token;
+      const loginSuccess =
+        payload?.success === true && donorData && token;
 
-      if (response.data?.success) {
-        const donorData = response.data.data;
-        const token = response.data.token;
-
-        // Keep existing keys if used elsewhere
+      if (loginSuccess) {
         localStorage.setItem("donorToken", token);
         localStorage.setItem("donor", JSON.stringify(donorData));
-
-        // NEW required key
         localStorage.setItem("loggedInDonor", JSON.stringify(donorData));
-
-        alert("Login successful!");
+        upsertRegisteredDonor({
+          ...donorData,
+          password: formData.password,
+        });
         navigate("/home");
+        alert("Login successful!");
       } else {
-        alert(response.data?.message || "Login failed");
+        alert(payload?.message || "Login failed");
       }
     } catch (error) {
+      const registered = readLocalJson("registeredDonors", []);
+      const match = registered.find(
+        (d) =>
+          d.email === formData.email && d.password === formData.password
+      );
+      if (match) {
+        const { password: _p, ...donor } = match;
+        localStorage.setItem("donorToken", donor.token || "");
+        localStorage.setItem("donor", JSON.stringify(donor));
+        localStorage.setItem("loggedInDonor", JSON.stringify(donor));
+        navigate("/home");
+        alert("Login successful!");
+        return;
+      }
       const message = error.response?.data?.message;
       if (message === "Registration not done. Please register first.") {
         alert(message);

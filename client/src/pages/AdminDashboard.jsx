@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./AdminDashboard.css";
+import { readLocalJson } from "../services/api";
 import {
   LayoutDashboard,
   Inbox,
@@ -35,7 +36,7 @@ function AdminDashboard() {
 
   // Check admin login and load data
   useEffect(() => {
-    const loggedInAdmin = JSON.parse(localStorage.getItem("loggedInAdmin") || "{}");
+    const loggedInAdmin = readLocalJson("loggedInAdmin", null);
     if (!loggedInAdmin || !loggedInAdmin.email) {
       navigate("/admin-login");
       return;
@@ -46,9 +47,9 @@ function AdminDashboard() {
   }, [navigate]);
 
   const loadData = () => {
-    const storedDonations = JSON.parse(localStorage.getItem("donorDonations") || "[]");
-    const storedVolunteers = JSON.parse(localStorage.getItem("volunteerRequests") || "[]");
-    const storedCampaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
+    const storedDonations = readLocalJson("donorDonations", []);
+    const storedVolunteers = readLocalJson("volunteerRequests", []);
+    const storedCampaigns = readLocalJson("campaigns", []);
 
     setDonationRequests(storedDonations);
     setVolunteerRequests(storedVolunteers);
@@ -111,7 +112,7 @@ function AdminDashboard() {
 
   const handleSaveCampaign = (e) => {
     e.preventDefault();
-    const storedCampaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
+    const storedCampaigns = readLocalJson("campaigns", []);
 
     if (editingCampaign) {
       // Update existing campaign
@@ -145,7 +146,7 @@ function AdminDashboard() {
 
   const handleDeleteCampaign = (id) => {
     if (window.confirm("Are you sure you want to delete this campaign?")) {
-      const storedCampaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
+      const storedCampaigns = readLocalJson("campaigns", []);
       const updatedCampaigns = storedCampaigns.filter((c) => c.id !== id);
       localStorage.setItem("campaigns", JSON.stringify(updatedCampaigns));
       window.dispatchEvent(new Event("campaignsUpdated"));
@@ -154,7 +155,7 @@ function AdminDashboard() {
   };
 
   const updateDonationStatus = (id, status) => {
-    const storedDonations = JSON.parse(localStorage.getItem("donorDonations") || "[]");
+    const storedDonations = readLocalJson("donorDonations", []);
     const updatedDonations = storedDonations.map((d) =>
       d.id === id ? { ...d, status } : d
     );
@@ -164,7 +165,7 @@ function AdminDashboard() {
   };
 
   const updateVolunteerStatus = (id, status) => {
-    const storedVolunteers = JSON.parse(localStorage.getItem("volunteerRequests") || "[]");
+    const storedVolunteers = readLocalJson("volunteerRequests", []);
     const updatedVolunteers = storedVolunteers.map((v) =>
       v.id === id ? { ...v, status } : v
     );
@@ -176,11 +177,12 @@ function AdminDashboard() {
   const handleLogout = () => {
     localStorage.removeItem("loggedInAdmin");
     localStorage.removeItem("adminToken");
+    localStorage.removeItem("admin");
     navigate("/");
   };
 
   const renderStatusBadge = (status) => {
-    const lower = status.toLowerCase();
+    const lower = String(status || "Pending").toLowerCase();
     const iconMap = {
       pending: <Clock size={16} />,
       accepted: <CheckCircle size={16} />,
@@ -190,7 +192,7 @@ function AdminDashboard() {
     return (
       <span className={`status-chip ${lower}`}>
         {iconMap[lower] || <Clock size={16} />}
-        <span>{status}</span>
+        <span>{status || "Pending"}</span>
       </span>
     );
   };
@@ -198,11 +200,11 @@ function AdminDashboard() {
   // Calculate stats
   const totalDonationRequests = donationRequests.length;
   const pendingDonationRequests = donationRequests.filter(
-    (r) => r.status === "Pending"
+    (r) => (r.status || "Pending") === "Pending"
   ).length;
   const totalVolunteerRequests = volunteerRequests.length;
   const pendingVolunteerRequests = volunteerRequests.filter(
-    (r) => r.status === "Pending"
+    (r) => (r.status || "Pending") === "Pending"
   ).length;
 
   return (
@@ -313,7 +315,9 @@ function AdminDashboard() {
                       <div>
                         <h3>{req.donorName}</h3>
                         <p className="muted">{req.donorEmail}</p>
-                        <p className="muted">{req.phone}</p>
+                        {req.phone && (
+                          <p className="muted">{req.phone}</p>
+                        )}
                       </div>
                       {renderStatusBadge(req.status)}
                     </div>
@@ -322,17 +326,25 @@ function AdminDashboard() {
                       <p>
                         <strong>Campaign:</strong> {req.campaignTitle}
                       </p>
+                      {req.campaignId && (
+                        <p>
+                          <strong>Campaign ID:</strong> {req.campaignId}
+                        </p>
+                      )}
                       <p>
-                        <strong>Type:</strong> {req.campaignType}
+                        <strong>Type:</strong>{" "}
+                        {req.type || req.campaignType || "—"}
                       </p>
                       <p>
-                        <strong>Item:</strong> {req.itemName}
+                        <strong>Item:</strong> {req.itemName || "—"}
                       </p>
                       <p>
-                        <strong>Quantity/Amount:</strong> {req.quantity || req.amount}
+                        <strong>Quantity / Amount:</strong>{" "}
+                        {req.amount || req.quantity || "—"}
                       </p>
                       <p>
-                        <strong>Pickup Location:</strong> {req.pickupLocation}
+                        <strong>Address:</strong>{" "}
+                        {req.address || req.pickupLocation || "—"}
                       </p>
                       <p>
                         <strong>Date:</strong>{" "}
@@ -340,7 +352,7 @@ function AdminDashboard() {
                       </p>
                     </div>
 
-                    {req.status === "Pending" && (
+                    {(req.status || "Pending") === "Pending" && (
                       <div className="request-actions">
                         <button
                           className="btn-small accept"
@@ -410,7 +422,7 @@ function AdminDashboard() {
                       </p>
                     </div>
 
-                    {req.status === "Pending" && (
+                    {(req.status || "Pending") === "Pending" && (
                       <div className="request-actions">
                         <button
                           className="btn-small accept"

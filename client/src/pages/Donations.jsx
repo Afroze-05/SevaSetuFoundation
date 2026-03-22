@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { CheckCircle, XCircle, Clock, Package } from "lucide-react";
 import "./Donations.css";
+import { readLocalJson } from "../services/api";
 
 function Donations() {
   const navigate = useNavigate();
@@ -12,9 +13,15 @@ function Donations() {
 
   useEffect(() => {
     // Check if donor is logged in
-    const loggedInDonor = JSON.parse(localStorage.getItem("loggedInDonor") || "{}");
-    if (!loggedInDonor || !loggedInDonor.email) {
-      navigate("/donor-login");
+    let loggedInDonor = null;
+    try {
+      const raw = localStorage.getItem("loggedInDonor");
+      loggedInDonor = raw ? JSON.parse(raw) : null;
+    } catch {
+      loggedInDonor = null;
+    }
+    if (!loggedInDonor) {
+      navigate("/login");
       return;
     }
 
@@ -29,9 +36,9 @@ function Donations() {
   // Listen for storage changes
   useEffect(() => {
     const handleStorageChange = () => {
-      const loggedInDonor = JSON.parse(localStorage.getItem("loggedInDonor") || "{}");
+      const loggedInDonor = readLocalJson("loggedInDonor", null);
       if (loggedInDonor && loggedInDonor.email) {
-        const allDonations = JSON.parse(localStorage.getItem("donorDonations") || "[]");
+        const allDonations = readLocalJson("donorDonations", []);
         const donorDonations = allDonations.filter(
           (donation) => donation.donorEmail === loggedInDonor.email
         );
@@ -102,22 +109,34 @@ function Donations() {
               <div key={donation.id} className="table-row">
                 <div className="table-cell">
                   <strong>{donation.campaignTitle}</strong>
-                  <span className="donation-type">{donation.campaignType}</span>
+                  <span className="donation-type">
+                    {donation.type || donation.campaignType}
+                  </span>
                 </div>
                 <div className="table-cell">
                   <div className="donation-details">
-                    <span className="item-name">{donation.itemName}</span>
-                    <span className="item-quantity">{donation.quantity || donation.amount}</span>
+                    <span className="item-name">
+                      {donation.itemName || donation.type || "—"}
+                    </span>
+                    <span className="item-quantity">
+                      {donation.amount || donation.quantity || "—"}
+                    </span>
                   </div>
                 </div>
                 <div className="table-cell">
-                  <span className="donation-date">{new Date(donation.date).toLocaleDateString()}</span>
+                  <span className="donation-date">
+                    {new Date(donation.date).toLocaleDateString()}
+                  </span>
                 </div>
                 <div className="table-cell">
                   <div className="status-badge">
-                    {getStatusIcon(donation.status)}
-                    <span className={`status-text ${donation.status.toLowerCase()}`}>
-                      {donation.status}
+                    {getStatusIcon(donation.status || "Pending")}
+                    <span
+                      className={`status-text ${String(
+                        donation.status || "Pending"
+                      ).toLowerCase()}`}
+                    >
+                      {donation.status || "Pending"}
                     </span>
                   </div>
                 </div>

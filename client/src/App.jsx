@@ -19,20 +19,21 @@ import AdminDashboard from "./pages/AdminDashboard";
 import AdminProfile from "./pages/AdminProfile";
 import MyVolunteerRequests from "./pages/MyVolunteerRequests";
 import ScrollToTop from "./ScrollToTop";
+import { readLocalJson } from "./services/api";
 
 // Donor-protected route
 function DonorRoute({ children }) {
-  const loggedInDonor = localStorage.getItem("loggedInDonor");
-  if (!loggedInDonor) {
-    return <Navigate to="/donor-login" replace />;
+  const loggedInDonor = readLocalJson("loggedInDonor", null);
+  if (!loggedInDonor || !loggedInDonor.email) {
+    return <Navigate to="/login" replace />;
   }
   return children;
 }
 
 // Admin-protected route
 function AdminRoute({ children }) {
-  const loggedInAdmin = localStorage.getItem("loggedInAdmin");
-  if (!loggedInAdmin) {
+  const loggedInAdmin = readLocalJson("loggedInAdmin", null);
+  if (!loggedInAdmin || !loggedInAdmin.email) {
     return <Navigate to="/admin-login" replace />;
   }
   return children;
@@ -51,6 +52,7 @@ function App() {
         <Route path="/feedback" element={<Feedback />} />
 
         {/* Auth routes */}
+        <Route path="/login" element={<DonorLogin />} />
         <Route path="/donor-login" element={<DonorLogin />} />
         <Route path="/donor-register" element={<DonorRegister />} />
         <Route path="/admin-login" element={<AdminLogin />} />

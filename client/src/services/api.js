@@ -20,4 +20,15 @@ export const setAuthToken = (token) => {
   }
 };
 
+/** Safe localStorage JSON read (invalid JSON returns fallback). */
+export function readLocalJson(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw == null || raw === "") return fallback;
+    return JSON.parse(raw);
+  } catch {
+    return fallback;
+  }
+}
+
 export default api;

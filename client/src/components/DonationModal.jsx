@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import "./DonationModal.css";
+import { readLocalJson } from "../services/api";
 
 function DonationModal({ isOpen, onClose, campaign }) {
   const [formData, setFormData] = useState({
@@ -14,9 +15,7 @@ function DonationModal({ isOpen, onClose, campaign }) {
 
   // Load donor info and prefill phone/address
   useEffect(() => {
-    const loggedInDonor = JSON.parse(
-      localStorage.getItem("loggedInDonor") || "{}"
-    );
+    const loggedInDonor = readLocalJson("loggedInDonor", {});
     setDonorInfo(loggedInDonor);
 
     if (loggedInDonor && isOpen) {
@@ -77,33 +76,41 @@ function DonationModal({ isOpen, onClose, campaign }) {
       id: Date.now().toString(),
       donorName: donorInfo.name,
       donorEmail: donorInfo.email,
-      phone: formData.phone || donorInfo.phone,
-      address: donorInfo.address,
+      campaignId: campaign?.id ?? "",
       campaignTitle: campaign?.title || "General Campaign",
+      type: campaign?.category || "General",
+      quantity: formData.quantity || "",
+      amount: formData.amount || "",
+      address: formData.pickupLocation,
+      phone: formData.phone || donorInfo.phone,
+      date: new Date().toISOString(),
+      status: "Pending",
       campaignType: campaign?.category || "General",
       itemName: formData.itemName,
-      quantity: formData.quantity,
-      amount: formData.amount || formData.quantity,
       pickupLocation: formData.pickupLocation,
-      date: new Date().toISOString().split("T")[0],
-      status: "Pending",
     };
 
-    const existingDonations = JSON.parse(
-      localStorage.getItem("donorDonations") || "[]"
-    );
+    const existingDonations = readLocalJson("donorDonations", []);
     existingDonations.push(donation);
     localStorage.setItem("donorDonations", JSON.stringify(existingDonations));
+    window.dispatchEvent(new Event("donationsUpdated"));
 
     if (campaign) {
-      const campaigns = JSON.parse(
-        localStorage.getItem("campaigns") || "[]"
-      );
+      const campaigns = readLocalJson("campaigns", []);
       const updatedCampaigns = campaigns.map((c) => {
         if (c.id === campaign.id) {
+          let delta = 1;
+          if (String(c.category || "").toLowerCase() === "financial") {
+            const raw = String(formData.amount || formData.quantity || "0").replace(
+              /[^\d.]/g,
+              ""
+            );
+            const n = parseFloat(raw);
+            delta = Number.isFinite(n) ? n : 1;
+          }
           return {
             ...c,
-            progress: (c.progress || 0) + 1,
+            progress: (Number(c.progress) || 0) + delta,
           };
         }
         return c;

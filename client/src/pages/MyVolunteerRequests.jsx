@@ -4,6 +4,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { CheckCircle, XCircle, Clock, Users } from "lucide-react";
 import "./MyVolunteerRequests.css";
+import { readLocalJson } from "../services/api";
 
 function MyVolunteerRequests() {
   const navigate = useNavigate();
@@ -13,7 +14,7 @@ function MyVolunteerRequests() {
     // Check if donor is logged in
     const loggedInDonor = JSON.parse(localStorage.getItem("loggedInDonor") || "{}");
     if (!loggedInDonor || !loggedInDonor.email) {
-      navigate("/donor-login");
+      navigate("/login");
       return;
     }
 
@@ -28,9 +29,9 @@ function MyVolunteerRequests() {
   // Listen for storage changes
   useEffect(() => {
     const handleStorageChange = () => {
-      const loggedInDonor = JSON.parse(localStorage.getItem("loggedInDonor") || "{}");
+      const loggedInDonor = readLocalJson("loggedInDonor", null);
       if (loggedInDonor && loggedInDonor.email) {
-        const allRequests = JSON.parse(localStorage.getItem("volunteerRequests") || "[]");
+        const allRequests = readLocalJson("volunteerRequests", []);
         const donorRequests = allRequests.filter(
           (request) => request.email === loggedInDonor.email
         );
@@ -80,9 +81,13 @@ function MyVolunteerRequests() {
                     <span className="request-email">{request.email}</span>
                   </div>
                   <div className="status-badge">
-                    {getStatusIcon(request.status)}
-                    <span className={`status-text ${request.status.toLowerCase()}`}>
-                      {request.status}
+                    {getStatusIcon(request.status || "Pending")}
+                    <span
+                      className={`status-text ${String(
+                        request.status || "Pending"
+                      ).toLowerCase()}`}
+                    >
+                      {request.status || "Pending"}
                     </span>
                   </div>
                 </div>

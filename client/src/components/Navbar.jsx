@@ -1,22 +1,33 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Home, Heart, Trophy, Users, Info, Mail, User, LogOut, HandHeart } from "lucide-react";
 import "./Navbar.css";
 
 function Navbar() {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const isActive = (path) => location.pathname === path;
+
+  const handleLogout = () => {
+    localStorage.removeItem("loggedInDonor");
+    localStorage.removeItem("donorToken");
+    localStorage.removeItem("donor");
+    navigate("/");
+  };
 
   return (
     <nav className="navbar-custom">
       <div className="nav-container">
-        <Link to="/home" className="nav-logo">
+        <Link to="/" className="nav-logo">
           <HandHeart className="logo-icon-nav" />
           <span className="logo-text">SevaSetu Foundation</span>
         </Link>
 
         <div className="nav-menu">
-          <Link to="/home" className={`nav-link ${isActive("/home") ? "active" : ""}`}>
+          <Link
+            to="/"
+            className={`nav-link ${isActive("/") || isActive("/home") ? "active" : ""}`}
+          >
             <Home className="nav-icon" />
             <span>Home</span>
           </Link>
@@ -48,10 +59,14 @@ function Navbar() {
             <User className="nav-icon" />
             <span>Profile</span>
           </Link>
-          <Link to="/" className="nav-link logout-link">
+          <button
+            type="button"
+            className="nav-link logout-link"
+            onClick={handleLogout}
+          >
             <LogOut className="nav-icon" />
             <span>Logout</span>
-          </Link>
+          </button>
         </div>
 
         {/* Mobile Menu Toggle */}

@@ -1,21 +1,37 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import CampaignCard from "../components/CampaignCard";
 import DonationModal from "../components/DonationModal";
 import { Search, Filter, Heart } from "lucide-react";
 import "./Campaigns.css";
+import { readLocalJson } from "../services/api";
 
 function Campaigns() {
+  const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCampaign, setSelectedCampaign] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all");
   const [campaigns, setCampaigns] = useState([]);
 
+  useEffect(() => {
+    let donor = null;
+    try {
+      const raw = localStorage.getItem("loggedInDonor");
+      donor = raw ? JSON.parse(raw) : null;
+    } catch {
+      donor = null;
+    }
+    if (!donor) {
+      navigate("/login");
+    }
+  }, [navigate]);
+
   // Seed campaigns into localStorage if not present
   useEffect(() => {
-    const existing = JSON.parse(localStorage.getItem("campaigns") || "[]");
+    const existing = readLocalJson("campaigns", []);
 
     if (!existing || existing.length === 0) {
       const seededCampaigns = [
@@ -97,7 +113,7 @@ function Campaigns() {
   // Listen for storage changes (when admin adds/edits campaigns)
   useEffect(() => {
     const handleStorageChange = () => {
-      const storedCampaigns = JSON.parse(localStorage.getItem("campaigns") || "[]");
+      const storedCampaigns = readLocalJson("campaigns", []);
       setCampaigns(storedCampaigns);
     };
 

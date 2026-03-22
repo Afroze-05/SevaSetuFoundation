@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PosterSlider from "../components/PosterSlider";
@@ -15,6 +15,21 @@ import {
 import "./Home.css";
 
 function Home() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    let donor = null;
+    try {
+      const raw = localStorage.getItem("loggedInDonor");
+      donor = raw ? JSON.parse(raw) : null;
+    } catch {
+      donor = null;
+    }
+    if (!donor) {
+      navigate("/login");
+    }
+  }, [navigate]);
+
   const helpSections = [
     {
       icon: Utensils,
